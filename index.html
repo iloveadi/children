@@ -1,0 +1,2832 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>어린이집 놀이 활동지 자동 생성기</title>
+  <style>
+    /* ==========================================================================
+       기본 리셋 및 디자인 토큰
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #ff4757;
+      --primary-light: #fff0f2;
+      --primary-border: #ffd1d6;
+      --primary-dark: #e03140;
+      --text-main: #1e293b;
+      --text-sub: #64748b;
+      --text-muted: #94a3b8;
+      --bg-panel: #ffffff;
+      --bg-body: #475569;
+      --border-color: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       좌측 컨트롤 패널 (330px 너비)
+       ========================================================================== */
+    #control-panel {
+      width: 330px;
+      min-width: 330px;
+      max-width: 330px;
+      height: 100vh;
+      background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+      z-index: 20;
+    }
+
+    /* 상단 브랜드 헤더 */
+    .panel-header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border-color);
+      background: #ffffff;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--primary);
+      background-color: var(--primary-light);
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-bottom: 5px;
+    }
+
+    .panel-header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+    }
+
+    .panel-header p {
+      font-size: 0.76rem;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    /* 패널 본문 */
+    .panel-content {
+      flex: 1;
+      padding: 14px 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 1. 활동지 선택 카드 그리드 (2열 타일) */
+    .activity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .activity-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 7px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      text-align: left;
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+
+    .activity-card:hover {
+      border-color: #cbd5e1;
+      background-color: #f8fafc;
+      transform: translateY(-1px);
+    }
+
+    .activity-card.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      box-shadow: 0 3px 8px rgba(255, 71, 87, 0.15);
+    }
+
+    .card-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .card-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .activity-card.active .card-title {
+      color: var(--primary);
+    }
+
+    .card-desc {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .activity-card.active .card-desc {
+      color: #e05666;
+    }
+
+    /* 2. 세부 옵션 박스 */
+    .options-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .options-box-header {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #334155;
+      padding-bottom: 7px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .options-box-header .active-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      background: #ffffff;
+      border-radius: 4px;
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .form-group input[type="text"],
+    .form-group select {
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      background: #ffffff;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-group input[type="text"]:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.12);
+    }
+
+    .helper-text {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      color: #475569;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* 한자 선택 전용 5열 버튼 그리드 */
+    .hanja-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+
+    .btn-hanja-choice {
+      padding: 7px 3px;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-hanja-choice:hover {
+      border-color: var(--primary);
+      background-color: #fff9f9;
+    }
+
+    .btn-hanja-choice.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(255, 71, 87, 0.3);
+    }
+
+    .hanja-char-text {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-family: 'Batang', 'Nanum Myeongjo', serif;
+      line-height: 1;
+    }
+
+    .hanja-sound-text {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .btn-hanja-choice.active .hanja-sound-text {
+      color: #ffe3e3;
+    }
+
+    /* 3. 공통 설정 접이식 아코디언 */
+    .common-settings-details {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .common-settings-summary {
+      padding: 9px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      background: #f8fafc;
+      transition: background 0.15s;
+    }
+
+    .common-settings-summary:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .common-settings-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid var(--border-color);
+      background: #ffffff;
+    }
+
+    /* 하단 인쇄 버튼 고정 */
+    .panel-footer {
+      padding: 14px 18px;
+      border-top: 1px solid var(--border-color);
+      background-color: #ffffff;
+    }
+
+    .btn-print {
+      width: 100%;
+      padding: 13px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: linear-gradient(135deg, #ff5e6c, #ff3b4e);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(255, 59, 78, 0.28);
+      transition: all 0.2s;
+    }
+
+    .btn-print:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(255, 59, 78, 0.35);
+      background: linear-gradient(135deg, #ff4c5c, #ee2c40);
+    }
+
+    .btn-print:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(255, 59, 78, 0.2);
+    }
+
+    /* ==========================================================================
+       우측 A4 미리보기 영역
+       ========================================================================== */
+    #preview-container {
+      flex: 1;
+      height: 100vh;
+      overflow: auto;
+      background-color: #334155;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 36px 20px;
+    }
+
+    .a4-paper {
+      width: 210mm;
+      min-height: 297mm;
+      height: 297mm;
+      background-color: #ffffff;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      border-radius: 3px;
+      padding: 18mm 20mm;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    /* 학습지 공통 상단 헤더 */
+    .worksheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 3px double var(--primary);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    .worksheet-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+
+    .worksheet-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .worksheet-meta {
+      display: flex;
+      gap: 15px;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .meta-line {
+      display: inline-block;
+      width: 75px;
+      border-bottom: 1px solid #64748b;
+      height: 14px;
+    }
+
+    /* 학습지 본문 공통 영역 (정가운데 수직 배치) */
+    .worksheet-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* ==========================================================================
+       기능별 스타일
+       ========================================================================== */
+    /* 1) 이름 쓰기 */
+    .grid-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .grid-row-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .row-label {
+      width: 68px;
+      min-width: 68px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: right;
+      padding-right: 8px;
+      white-space: nowrap;
+    }
+
+    .row-label.trace-label {
+      color: #8b95a1;
+      font-weight: 600;
+    }
+
+    .grid-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .grid-cell {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      border: 2px solid #1e293b;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .grid-cell.has-cross::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 0;
+      border-top: 1px dashed #cbd5e1;
+      pointer-events: none;
+    }
+
+    .grid-cell.has-cross::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      border-left: 1px dashed #cbd5e1;
+      pointer-events: none;
+    }
+
+    .cell-char {
+      position: relative;
+      z-index: 1;
+      font-size: 42px;
+      line-height: 1;
+      font-family: 'Pretendard', sans-serif;
+      user-select: none;
+    }
+
+    .row-model .cell-char {
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    .row-trace .cell-char {
+      color: #cbd5e1;
+      font-weight: 600;
+      -webkit-text-stroke: 0;
+    }
+
+    .row-blank .cell-char {
+      display: none;
+    }
+
+    /* 2) 기초 한자 쓰기 전용 스타일 */
+    .hanja-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      padding: 0;
+    }
+
+    .hanja-hero-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px 22px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .hero-char-box {
+      width: 86px;
+      height: 86px;
+      background: #ffffff;
+      border: 2.5px solid #1e293b;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+
+    .hero-char-big {
+      font-size: 62px;
+      font-family: 'Batang', 'Nanum Myeongjo', serif;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+
+    .hero-info-box {
+      flex: 1;
+      margin-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .hero-sound-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .hero-mean-badge {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .hero-sound-badge {
+      font-size: 28px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .hero-meta-desc {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e11d48;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .counting-apples {
+      font-size: 18px;
+      letter-spacing: 2px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .hero-mascot-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1.5px dashed #fca5a5;
+      border-radius: 12px;
+      padding: 8px 16px;
+    }
+
+    .mascot-emoji {
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .mascot-speech {
+      font-size: 10px;
+      font-weight: 700;
+      color: #e11d48;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+
+    .hanja-grid-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      margin: 0;
+    }
+
+    .hanja-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .hanja-cell {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      border: 2px solid #1e293b;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .hanja-cell.has-cross::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 0;
+      border-top: 1px dashed #cbd5e1;
+      pointer-events: none;
+    }
+
+    .hanja-cell.has-cross::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      border-left: 1px dashed #cbd5e1;
+      pointer-events: none;
+    }
+
+    .hanja-sub-label {
+      position: absolute;
+      top: 3px;
+      left: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      z-index: 2;
+    }
+
+    .hanja-char {
+      position: relative;
+      z-index: 1;
+      font-size: 56px;
+      line-height: 1;
+      font-family: 'Batang', 'Nanum Myeongjo', serif;
+      user-select: none;
+    }
+
+    .hanja-model .hanja-char {
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    .hanja-trace .hanja-char {
+      color: #cbd5e1;
+      font-weight: 600;
+      -webkit-text-stroke: 0;
+    }
+
+    .hanja-blank .hanja-char {
+      display: none;
+    }
+
+    /* 3) 반쪽 그리기 (대칭 그림 완성) 스타일 */
+    .half-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .half-banner {
+      width: 100%;
+      background: #f1f5f9;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 9px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .half-canvas-box {
+      width: 100%;
+      height: 480px;
+      background: #ffffff;
+      border: 2px dashed #e2e8f0;
+      border-radius: 16px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .half-canvas-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .half-tip-note {
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      background-color: #f8fafc;
+      padding: 7px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* 4) 선 긋기 */
+    .line-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+
+    .line-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 8px 12px;
+      background-color: #fafbfc;
+      border: 1px solid #f1f3f5;
+      border-radius: 12px;
+    }
+
+    .point-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      min-width: 52px;
+    }
+
+    .point-icon {
+      font-size: 34px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+    }
+
+    .point-text {
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 4px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .point-start .point-text {
+      background-color: #ffeaa7;
+      color: #d63031;
+    }
+
+    .point-end .point-text {
+      background-color: #55efc4;
+      color: #00b894;
+    }
+
+    .line-svg-wrap {
+      flex: 1;
+      height: 60px;
+      display: flex;
+      align-items: center;
+    }
+
+    .line-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* 5) 가위질 도안 */
+    .scissor-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: space-around;
+      align-items: stretch;
+      padding: 10px 0;
+    }
+
+    .scissor-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 80px;
+      height: 100%;
+      position: relative;
+    }
+
+    .scissor-target {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 8px 10px;
+      width: 72px;
+    }
+
+    .target-icon {
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .target-text {
+      font-size: 9px;
+      font-weight: 700;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    .scissor-svg-wrap {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      margin: 6px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .scissor-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .scissor-start {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #fff1f2;
+      border: 1.5px solid #fecdd3;
+      border-radius: 12px;
+      padding: 6px 8px;
+      width: 68px;
+    }
+
+    .scissor-icon {
+      font-size: 28px;
+      line-height: 1;
+      transform: rotate(-45deg);
+      display: inline-block;
+    }
+
+    .scissor-label {
+      font-size: 9px;
+      font-weight: 800;
+      color: #e11d48;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+
+    /* 6) 칭찬 스티커판 */
+    .sticker-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    .sticker-promise-banner {
+      width: 100%;
+      background: linear-gradient(135deg, #fff5f5, #fff0f6);
+      border: 2px dashed #ffa8a8;
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+      margin-bottom: 14px;
+    }
+
+    .promise-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #e03131;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .promise-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #495057;
+      border-bottom: 1.5px solid #adb5bd;
+      padding-bottom: 2px;
+      min-width: 250px;
+      text-align: center;
+    }
+
+    .sticker-grid {
+      display: grid;
+      gap: 12px;
+      justify-content: center;
+      align-content: center;
+      flex: 1;
+      width: 100%;
+    }
+
+    .sticker-circle {
+      border: 2.5px dashed #ffa8a8;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .sticker-num {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fa5252;
+    }
+
+    .sticker-subicon {
+      font-size: 14px;
+      color: #ffc9c9;
+      margin-top: -2px;
+    }
+
+    .sticker-circle.goal-circle {
+      border: 3px solid var(--primary);
+      background: radial-gradient(circle, #fff5f5 0%, #ffe3e3 100%);
+      box-shadow: 0 4px 10px rgba(255, 107, 129, 0.25);
+    }
+
+    .sticker-circle.goal-circle .sticker-num {
+      font-size: 13px;
+      color: #d63031;
+    }
+
+    .sticker-circle.goal-circle .sticker-subicon {
+      font-size: 20px;
+    }
+
+    .sticker-bottom-note {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 14px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #636e72;
+      border: 1px solid #e9ecef;
+      margin-top: 10px;
+    }
+
+    /* 7) 숫자 점잇기 */
+    .dot-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+
+    .dot-instruction-bar {
+      width: 100%;
+      background: #f1f5f9;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .dot-instruction-bar span strong {
+      color: #e11d48;
+    }
+
+    .dot-svg-canvas {
+      width: 100%;
+      height: 480px;
+      background: #ffffff;
+      border: 2px dashed #f1f5f9;
+      border-radius: 16px;
+      position: relative;
+      margin: 10px 0;
+    }
+
+    .dot-canvas-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .dot-tip-note {
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      background-color: #f8fafc;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* 학습지 하단 푸터 */
+    .worksheet-footer {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #a4b0be;
+      border-top: 1px solid #f1f2f6;
+      padding-top: 10px;
+    }
+
+    /* ==========================================================================
+       인쇄 설정 (@media print)
+       ========================================================================== */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      html, body {
+        width: 210mm;
+        height: 297mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        overflow: visible !important;
+      }
+
+      #control-panel {
+        display: none !important;
+      }
+
+      #preview-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: none !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        display: block !important;
+        overflow: visible !important;
+      }
+
+      .a4-paper {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        min-height: 297mm !important;
+        max-height: 297mm !important;
+        margin: 0 !important;
+        padding: 18mm 20mm !important;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .row-label {
+        color: #555555 !important;
+        white-space: nowrap !important;
+      }
+
+      .grid-cell, .hanja-cell, .hero-char-box {
+        border-color: #000000 !important;
+      }
+
+      .grid-cell.has-cross::before,
+      .grid-cell.has-cross::after,
+      .hanja-cell.has-cross::before,
+      .hanja-cell.has-cross::after {
+        border-color: #bbbbbb !important;
+      }
+
+      .row-model .cell-char, .hanja-model .hanja-char, .hero-char-big {
+        color: #000000 !important;
+      }
+
+      .row-trace .cell-char, .hanja-trace .hanja-char {
+        color: #cccccc !important;
+        -webkit-text-stroke: 0 !important;
+      }
+
+      .line-row {
+        background-color: transparent !important;
+        border-color: #e2e8f0 !important;
+      }
+
+      .scissor-start, .scissor-target, .sticker-promise-banner, .sticker-circle, .dot-instruction-bar, .hanja-hero-card, .half-banner {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .dot-svg-canvas, .half-canvas-box {
+        border: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 왼쪽: 컨트롤 패널 (330px 너비) -->
+  <aside id="control-panel">
+    <!-- 패널 상단 브랜드 헤더 -->
+    <header class="panel-header">
+      <div class="brand-badge">🌱 어린이집 교사용 놀이도구</div>
+      <h1>활동지 생성 공방</h1>
+      <p>원하는 활동지를 선택하고 바로 인쇄하세요.</p>
+    </header>
+
+    <!-- 스크롤 옵션 패널 본문 -->
+    <div class="panel-content">
+      <!-- 1. 활동지 종류 선택 (2열 타일 그리드) -->
+      <section>
+        <div class="section-label">📌 활동지 종류 선택</div>
+        <div class="activity-grid">
+          <button type="button" class="activity-card active" data-mode="name">
+            <span class="card-icon">✏️</span>
+            <div class="card-text">
+              <span class="card-title">이름 쓰기</span>
+              <span class="card-desc">깍두기 한글</span>
+            </div>
+          </button>
+
+          <button type="button" class="activity-card" data-mode="hanja">
+            <span class="card-icon">🈴</span>
+            <div class="card-text">
+              <span class="card-title">기초 한자</span>
+              <span class="card-desc">8급 숫자 (1~10)</span>
+            </div>
+          </button>
+
+          <button type="button" class="activity-card" data-mode="half">
+            <span class="card-icon">🦋</span>
+            <div class="card-text">
+              <span class="card-title">반쪽 그리기</span>
+              <span class="card-desc">대칭 그림 완성</span>
+            </div>
+          </button>
+
+          <button type="button" class="activity-card" data-mode="line">
+            <span class="card-icon">〰️</span>
+            <div class="card-text">
+              <span class="card-title">선 긋기</span>
+              <span class="card-desc">운필력 발달</span>
+            </div>
+          </button>
+
+          <button type="button" class="activity-card" data-mode="scissor">
+            <span class="card-icon">✂️</span>
+            <div class="card-text">
+              <span class="card-title">가위질</span>
+              <span class="card-desc">소근육 오리기</span>
+            </div>
+          </button>
+
+          <button type="button" class="activity-card" data-mode="dot">
+            <span class="card-icon">🔢</span>
+            <div class="card-text">
+              <span class="card-title">숫자 점잇기</span>
+              <span class="card-desc">1~10 순서</span>
+            </div>
+          </button>
+
+          <button type="button" class="activity-card" data-mode="sticker" style="grid-column: span 2;">
+            <span class="card-icon">⭐</span>
+            <div class="card-text">
+              <span class="card-title">칭찬 스티커판</span>
+              <span class="card-desc">목표 달성 약속 및 보상 도안</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. 선택된 활동지별 맞춤 옵션 박스 -->
+      <section>
+        <div class="section-label">🛠️ 활동지 세부 설정</div>
+
+        <!-- 옵션 1: 이름 쓰기 -->
+        <div id="opts-name" class="options-box">
+          <div class="options-box-header">
+            <span>✏️ 이름 따라 쓰기 옵션</span>
+            <span class="active-badge">한글 깍두기</span>
+          </div>
+
+          <div class="form-group">
+            <label for="input-child-name">아이 이름</label>
+            <input type="text" id="input-child-name" value="김지훈" maxlength="6" placeholder="아이 이름">
+            <span class="helper-text">이름 글자 수에 맞춰 칸 크기가 자동 조절됩니다.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="select-rows">줄 수 (연습 행 개수)</label>
+            <select id="select-rows">
+              <option value="4">4줄 (여유 있는 구성)</option>
+              <option value="5">5줄</option>
+              <option value="6" selected>6줄 (추천)</option>
+              <option value="7">7줄</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="select-blank-rows">마지막 줄 스스로 쓰기(빈 칸)</label>
+            <select id="select-blank-rows">
+              <option value="0">모두 흐린 글씨로 따라 쓰기</option>
+              <option value="1" selected>마지막 1줄은 빈 칸으로 두기</option>
+              <option value="2">마지막 2줄은 빈 칸으로 두기</option>
+            </select>
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-cross-line" checked>
+            <span>깍두기 내부 십자 점선 표시</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-row-label" checked>
+            <span>좌측 줄 안내 라벨(보기/따라쓰기) 표시</span>
+          </label>
+        </div>
+
+        <!-- 옵션 2: 기초 한자 쓰기 (8급 한자 1~10) -->
+        <div id="opts-hanja" class="options-box" style="display: none;">
+          <div class="options-box-header">
+            <span>🈴 기초 한자 쓰기 (8급)</span>
+            <span class="active-badge">숫자 한자</span>
+          </div>
+
+          <div class="form-group">
+            <label>연습할 숫자 한자 선택 (1~10)</label>
+            <div class="hanja-selector-grid" id="hanja-btn-group">
+              <!-- JS에서 버튼 생성 -->
+            </div>
+            <span class="helper-text">버튼을 클릭하면 해당 한자 학습지로 즉시 변경됩니다.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="select-hanja-rows">줄 수 (연습 행 개수)</label>
+            <select id="select-hanja-rows">
+              <option value="3">3줄 (가장 널찍한 구성)</option>
+              <option value="4" selected>4줄 (추천)</option>
+              <option value="5">5줄</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="select-hanja-blank">스스로 쓰기 빈 칸 줄 수</label>
+            <select id="select-hanja-blank">
+              <option value="0">모두 흐린 글씨로 따라 쓰기</option>
+              <option value="1" selected>마지막 1줄은 빈 칸으로 두기</option>
+              <option value="2">마지막 2줄은 빈 칸으로 두기</option>
+            </select>
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-hanja-cross" checked>
+            <span>깍두기 내부 십자 점선 가이드 표시</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-hanja-mascot" checked>
+            <span>상단 귀여운 훈장님 마스코트 캐릭터 표시</span>
+          </label>
+        </div>
+
+        <!-- 옵션 3: 반쪽 그리기 (대칭 그림 완성) -->
+        <div id="opts-half" class="options-box" style="display: none;">
+          <div class="options-box-header">
+            <span>🦋 반쪽 그리기 (대칭 미술)</span>
+            <span class="active-badge">공간지각력</span>
+          </div>
+
+          <div class="form-group">
+            <label for="select-half-shape">대칭 도안 선택</label>
+            <select id="select-half-shape">
+              <option value="butterfly" selected>🦋 나비 (인기 추천 도안)</option>
+              <option value="bear">🐻 귀여운 곰돌이 얼굴</option>
+              <option value="robot">🤖 멋진 꼬마 로봇</option>
+              <option value="apple">🍎 맛있는 사과</option>
+            </select>
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-half-hint">
+            <span>초급용 오른쪽 흐린 힌트 점선 표시</span>
+          </label>
+          <span class="helper-text" style="margin-left: 22px;">체크를 풀면 오른쪽이 완전한 백지가 됩니다.</span>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-half-grid" checked>
+            <span>대칭 맞추기용 배경 보조 모눈망 표시</span>
+          </label>
+        </div>
+
+        <!-- 옵션 4: 선 긋기 -->
+        <div id="opts-line" class="options-box" style="display: none;">
+          <div class="options-box-header">
+            <span>〰️ 운필력 선 긋기 옵션</span>
+            <span class="active-badge">점선 모드</span>
+          </div>
+
+          <div class="form-group">
+            <label for="select-line-difficulty">선 모양 (난이도)</label>
+            <select id="select-line-difficulty">
+              <option value="straight">직선 (기초)</option>
+              <option value="zigzag">지그재그 (꺾은선)</option>
+              <option value="wave" selected>물결선 (곡선)</option>
+              <option value="mixed">골고루 섞기 (혼합)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="select-line-count">줄 수 (선 개수)</label>
+            <select id="select-line-count">
+              <option value="4">4줄</option>
+              <option value="5" selected>5줄 (추천)</option>
+              <option value="6">6줄</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="select-line-stroke">점선 굵기</label>
+            <select id="select-line-stroke">
+              <option value="3">보통 (3px)</option>
+              <option value="4" selected>두껍게 (4px)</option>
+              <option value="6">아주 두껍게 (6px)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="select-line-theme">아이콘 테마</label>
+            <select id="select-line-theme">
+              <option value="animals" selected>동물과 먹이 (🐰🥕 등)</option>
+              <option value="vehicles">탈것과 목적지 (🚗🏁 등)</option>
+              <option value="fantasy">우주와 보물 (🚀🪐 등)</option>
+              <option value="mixed">다양한 테마 혼합</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 옵션 5: 가위질 -->
+        <div id="opts-scissor" class="options-box" style="display: none;">
+          <div class="options-box-header">
+            <span>✂️ 가위질 연습 도안 옵션</span>
+            <span class="active-badge">절취선 모드</span>
+          </div>
+
+          <div class="form-group">
+            <label for="select-scissor-type">절취선 모양</label>
+            <select id="select-scissor-type">
+              <option value="straight" selected>직선 (초급: 곧게 오리기)</option>
+              <option value="wide-zigzag">넓은 지그재그 (중급: 꺾어 오리기)</option>
+              <option value="wave">완만한 물결선 (상급: 곡선 오리기)</option>
+              <option value="mixed">혼합 (다양한 선 섞기)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="select-scissor-count">절취선 개수</label>
+            <select id="select-scissor-count">
+              <option value="3">3개 (여유로운 간격)</option>
+              <option value="4" selected>4개 (추천)</option>
+              <option value="5">5개</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="select-scissor-theme">도착 목표물 아이콘</label>
+            <select id="select-scissor-theme">
+              <option value="presents" selected>선물과 장난감 (🎁 🧸 🎈 🚗)</option>
+              <option value="fruits">맛있는 과일 (🍎 🍌 🍓 🍇)</option>
+              <option value="animals">귀여운 동물 (🐶 🐱 🐰 🐼)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 옵션 6: 숫자 점잇기 -->
+        <div id="opts-dot" class="options-box" style="display: none;">
+          <div class="options-box-header">
+            <span>🔢 숫자 점잇기 옵션</span>
+            <span class="active-badge">1~10 순서</span>
+          </div>
+
+          <div class="form-group">
+            <label for="select-dot-shape">도안 모양</label>
+            <select id="select-dot-shape">
+              <option value="star" selected>⭐ 반짝반짝 별 (1~10)</option>
+              <option value="house">🏠 예쁜 우리 집 (1~10)</option>
+              <option value="sailboat">⛵ 바다 위 돛단배 (1~10)</option>
+              <option value="apple">🍎 달콤한 사과 (1~10)</option>
+            </select>
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-dot-start-flag" checked>
+            <span>1번 시작점(출발 깃발) 강조 표시</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-dot-guide">
+            <span>초급용 흐린 안내선(힌트 점선) 표시</span>
+          </label>
+          <span class="helper-text" style="margin-left: 22px;">해제 시 점과 숫자만 남아 집중력을 높입니다.</span>
+        </div>
+
+        <!-- 옵션 7: 칭찬 스티커판 -->
+        <div id="opts-sticker" class="options-box" style="display: none;">
+          <div class="options-box-header">
+            <span>⭐ 칭찬 스티커판 옵션</span>
+            <span class="active-badge">스탬프 모드</span>
+          </div>
+
+          <div class="form-group">
+            <label for="input-sticker-name">아이 이름</label>
+            <input type="text" id="input-sticker-name" value="김지훈" maxlength="6" placeholder="아이 이름">
+          </div>
+
+          <div class="form-group">
+            <label for="select-sticker-count">스티커 목표 개수</label>
+            <select id="select-sticker-count">
+              <option value="10">10개 (첫 도전 / 단기 목표)</option>
+              <option value="20" selected>20개 (표준 한 달 목표)</option>
+              <option value="30">30개 (마스터 목표)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-sticker-reward">약속된 보상 (선물)</label>
+            <input type="text" id="input-sticker-reward" value="좋아하는 장난감 선물받기!" placeholder="예: 맛있는 간식 먹기">
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 공통 서식 설정 (접이식 아코디언) -->
+      <section>
+        <details class="common-settings-details">
+          <summary class="common-settings-summary">
+            <span>⚙️ 활동지 제목 / 서식 수정</span>
+            <span style="font-size: 0.72rem; color: #94a3b8;">열기 ▾</span>
+          </summary>
+          <div class="common-settings-body">
+            <div class="form-group">
+              <label for="input-title">학습지 제목</label>
+              <input type="text" id="input-title" value="내 이름을 바르게 써 보아요">
+            </div>
+
+            <div class="form-group">
+              <label for="input-subtitle">소제목 / 활동 안내문</label>
+              <input type="text" id="input-subtitle" value="글씨의 바른 획순을 생각하며 또박또박 따라 써 보세요.">
+            </div>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="check-name" checked>
+              <span>상단 '이름 / 날짜' 칸 표시</span>
+            </label>
+
+            <div class="form-group">
+              <label for="input-footer">하단 푸터 문구</label>
+              <input type="text" id="input-footer" value="어린이집 놀이 활동지">
+            </div>
+          </div>
+        </details>
+      </section>
+    </div>
+
+    <!-- 하단 인쇄 버튼 고정 영역 -->
+    <footer class="panel-footer">
+      <button type="button" id="btn-print" class="btn-print">
+        🖨️ A4 용지에 인쇄하기
+      </button>
+    </footer>
+  </aside>
+
+  <!-- 오른쪽: A4 미리보기 영역 -->
+  <main id="preview-container">
+    <section class="a4-paper" id="worksheet-paper">
+      <!-- 학습지 상단 헤더 -->
+      <header class="worksheet-header">
+        <div>
+          <h2 class="worksheet-title" id="display-title">내 이름을 바르게 써 보아요</h2>
+          <div class="worksheet-subtitle" id="display-subtitle">글씨의 바른 획순을 생각하며 또박또박 따라 써 보세요.</div>
+        </div>
+        <div class="worksheet-meta" id="display-meta">
+          <div class="meta-item">이름: <span class="meta-line"></span></div>
+          <div class="meta-item">날짜: <span class="meta-line"></span></div>
+        </div>
+      </header>
+
+      <!-- 학습지 본문 영역 (동적 렌더링) -->
+      <div class="worksheet-body" id="display-body">
+        <!-- JS 렌더링 -->
+      </div>
+
+      <!-- 학습지 하단 푸터 -->
+      <footer class="worksheet-footer">
+        <span id="display-footer">어린이집 놀이 활동지</span>
+        <span>A4 Portrait (210mm × 297mm)</span>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    /* ==========================================================================
+       1. 8급 기초 숫자 한자 데이터 (1~10)
+       ========================================================================== */
+    const hanjaList = [
+      { char: '一', mean: '한', sound: '일', num: 1, countText: '하나 (1개)' },
+      { char: '二', mean: '두', sound: '이', num: 2, countText: '둘 (2개)' },
+      { char: '三', mean: '석', sound: '삼', num: 3, countText: '셋 (3개)' },
+      { char: '四', mean: '넉', sound: '사', num: 4, countText: '넷 (4개)' },
+      { char: '五', mean: '다섯', sound: '오', num: 5, countText: '다섯 (5개)' },
+      { char: '六', mean: '여섯', sound: '륙', num: 6, countText: '여섯 (6개)' },
+      { char: '七', mean: '일곱', sound: '칠', num: 7, countText: '일곱 (7개)' },
+      { char: '八', mean: '여덟', sound: '팔', num: 8, countText: '여덟 (8개)' },
+      { char: '九', mean: '아홉', sound: '구', num: 9, countText: '아홉 (9개)' },
+      { char: '十', mean: '열', sound: '십', num: 10, countText: '열 (10개)' }
+    ];
+
+    let selectedHanjaIndex = 0;
+
+    /* ==========================================================================
+       2. 활동지 선택 & 메뉴 인터랙션
+       ========================================================================== */
+    let currentMode = 'name';
+
+    const activityCards = document.querySelectorAll('.activity-card');
+    const optionBoxes = {
+      name: document.getElementById('opts-name'),
+      hanja: document.getElementById('opts-hanja'),
+      half: document.getElementById('opts-half'),
+      line: document.getElementById('opts-line'),
+      scissor: document.getElementById('opts-scissor'),
+      dot: document.getElementById('opts-dot'),
+      sticker: document.getElementById('opts-sticker')
+    };
+
+    const defaultTitles = {
+      name: {
+        title: '내 이름을 바르게 써 보아요',
+        subtitle: '글씨의 바른 획순을 생각하며 또박또박 따라 써 보세요.'
+      },
+      hanja: {
+        title: '기초 8급 한자 쓰기 놀이',
+        subtitle: '사과 개수를 세어보고 또박또박 덧써 보세요.'
+      },
+      half: {
+        title: '대칭 그림 완성하기 (반쪽 그리기)',
+        subtitle: '왼쪽 모양을 관찰하고, 오른쪽 빈칸에 똑같이 대칭으로 그려 완성해 보세요!'
+      },
+      line: {
+        title: '신나는 운필력 선 긋기 놀이',
+        subtitle: '출발점에서 도착점까지 두꺼운 점선을 따라 바르게 선을 그어보세요.'
+      },
+      scissor: {
+        title: '싹둑싹둑 가위질 연습 도안',
+        subtitle: '아래 가위(✂️) 표시부터 선을 따라 위쪽 목표물까지 조심조심 오려보아요.'
+      },
+      dot: {
+        title: '1부터 10까지 숫자 점잇기',
+        subtitle: '숫자 1부터 순서대로 점을 이어 그림을 완성하고 예쁘게 색칠해보세요!'
+      },
+      sticker: {
+        title: '김지훈의 칭찬 스티커판',
+        subtitle: '착한 일이나 약속을 지킬 때마다 예쁜 스티커를 붙여주세요!'
+      }
+    };
+
+    activityCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const mode = card.getAttribute('data-mode');
+        switchActivityMode(mode);
+      });
+    });
+
+    function switchActivityMode(mode) {
+      currentMode = mode;
+
+      activityCards.forEach(c => {
+        if (c.getAttribute('data-mode') === mode) {
+          c.classList.add('active');
+        } else {
+          c.classList.remove('active');
+        }
+      });
+
+      Object.keys(optionBoxes).forEach(key => {
+        if (key === mode) {
+          optionBoxes[key].style.display = 'flex';
+        } else {
+          optionBoxes[key].style.display = 'none';
+        }
+      });
+
+      let title = defaultTitles[mode].title;
+      let subtitle = defaultTitles[mode].subtitle;
+
+      if (mode === 'hanja') {
+        const currentH = hanjaList[selectedHanjaIndex];
+        title = `기초 한자 [ ${currentH.char} ] - ${currentH.mean} ${currentH.sound}`;
+      } else if (mode === 'sticker') {
+        const name = document.getElementById('input-sticker-name').value.trim() || '김지훈';
+        title = `👑 ${name}의 칭찬 스티커판`;
+      }
+
+      updateHeaders(title, subtitle);
+      renderWorksheet();
+    }
+
+    function updateHeaders(title, subtitle) {
+      document.getElementById('input-title').value = title;
+      document.getElementById('display-title').textContent = title;
+      document.getElementById('input-subtitle').value = subtitle;
+      document.getElementById('display-subtitle').textContent = subtitle;
+    }
+
+    /* ==========================================================================
+       3. 한자 선택 버튼 그룹 초기화
+       ========================================================================== */
+    const hanjaBtnGroup = document.getElementById('hanja-btn-group');
+    hanjaList.forEach((item, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-hanja-choice' + (idx === 0 ? ' active' : '');
+      btn.innerHTML = `
+        <span class="hanja-char-text">${item.char}</span>
+        <span class="hanja-sound-text">${item.sound}</span>
+      `;
+      btn.addEventListener('click', () => {
+        selectedHanjaIndex = idx;
+        document.querySelectorAll('.btn-hanja-choice').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (currentMode === 'hanja') {
+          const currentH = hanjaList[selectedHanjaIndex];
+          updateHeaders(`기초 한자 [ ${currentH.char} ] - ${currentH.mean} ${currentH.sound}`, defaultTitles['hanja'].subtitle);
+          renderHanjaWorksheet();
+        }
+      });
+      hanjaBtnGroup.appendChild(btn);
+    });
+
+    /* ==========================================================================
+       4. 인쇄하기 버튼
+       ========================================================================== */
+    document.getElementById('btn-print').addEventListener('click', () => {
+      window.print();
+    });
+
+    /* ==========================================================================
+       5. 메인 본문 렌더링 디스패처
+       ========================================================================== */
+    const displayBody = document.getElementById('display-body');
+
+    function renderWorksheet() {
+      if (currentMode === 'name') {
+        renderNameGrid();
+      } else if (currentMode === 'hanja') {
+        renderHanjaWorksheet();
+      } else if (currentMode === 'half') {
+        renderHalfDrawing();
+      } else if (currentMode === 'line') {
+        renderLineTracing();
+      } else if (currentMode === 'scissor') {
+        renderScissorCutting();
+      } else if (currentMode === 'sticker') {
+        renderStickerBoard();
+      } else if (currentMode === 'dot') {
+        renderDotToDot();
+      }
+    }
+
+    /* ==========================================================================
+       6. 기능 1: 깍두기 공책(이름 따라 쓰기) 렌더링
+       ========================================================================== */
+    const inputChildName = document.getElementById('input-child-name');
+    const selectRows = document.getElementById('select-rows');
+    const selectBlankRows = document.getElementById('select-blank-rows');
+    const checkCrossLine = document.getElementById('check-cross-line');
+    const checkRowLabel = document.getElementById('check-row-label');
+
+    function renderNameGrid() {
+      const rawName = inputChildName.value.trim() || '김지훈';
+      const characters = Array.from(rawName);
+      const totalRows = parseInt(selectRows.value, 10) || 6;
+      const blankRowCount = parseInt(selectBlankRows.value, 10) || 0;
+      const showCross = checkCrossLine.checked;
+      const showLabel = checkRowLabel.checked;
+
+      displayBody.innerHTML = '';
+      const gridContainer = document.createElement('div');
+      gridContainer.className = 'grid-container';
+
+      let cellSize = 68;
+      let fontSize = 42;
+      if (characters.length <= 2) {
+        cellSize = 84;
+        fontSize = 54;
+      } else if (characters.length === 3) {
+        cellSize = 74;
+        fontSize = 46;
+      } else if (characters.length >= 5) {
+        cellSize = 58;
+        fontSize = 36;
+      }
+
+      for (let r = 0; r < totalRows; r++) {
+        const rowWrap = document.createElement('div');
+        rowWrap.className = 'grid-row-wrap';
+
+        const isFirstRow = (r === 0);
+        const isBlankRow = (r >= totalRows - blankRowCount);
+
+        if (showLabel) {
+          const label = document.createElement('div');
+          if (isFirstRow) {
+            label.className = 'row-label';
+            label.textContent = '★ 보기';
+          } else if (isBlankRow) {
+            label.className = 'row-label trace-label';
+            label.textContent = '스스로';
+          } else {
+            label.className = 'row-label trace-label';
+            label.textContent = '따라쓰기';
+          }
+          rowWrap.appendChild(label);
+        }
+
+        const row = document.createElement('div');
+        row.className = 'grid-row';
+        if (isFirstRow) {
+          row.classList.add('row-model');
+        } else if (isBlankRow) {
+          row.classList.add('row-blank');
+        } else {
+          row.classList.add('row-trace');
+        }
+
+        characters.forEach(char => {
+          const cell = document.createElement('div');
+          cell.className = 'grid-cell' + (showCross ? ' has-cross' : '');
+          cell.style.width = `${cellSize}px`;
+          cell.style.height = `${cellSize}px`;
+
+          const charSpan = document.createElement('span');
+          charSpan.className = 'cell-char';
+          charSpan.style.fontSize = `${fontSize}px`;
+          charSpan.textContent = char;
+
+          cell.appendChild(charSpan);
+          row.appendChild(cell);
+        });
+
+        rowWrap.appendChild(row);
+        gridContainer.appendChild(rowWrap);
+      }
+
+      displayBody.appendChild(gridContainer);
+    }
+
+    inputChildName.addEventListener('input', () => { if (currentMode === 'name') renderNameGrid(); });
+    selectRows.addEventListener('change', () => { if (currentMode === 'name') renderNameGrid(); });
+    selectBlankRows.addEventListener('change', () => { if (currentMode === 'name') renderNameGrid(); });
+    checkCrossLine.addEventListener('change', () => { if (currentMode === 'name') renderNameGrid(); });
+    checkRowLabel.addEventListener('change', () => { if (currentMode === 'name') renderNameGrid(); });
+
+    /* ==========================================================================
+       7. 기능 2: 유아용 기초 한자 쓰기 (8급 한자) 렌더링
+       ========================================================================== */
+    const selectHanjaRows = document.getElementById('select-hanja-rows');
+    const selectHanjaBlank = document.getElementById('select-hanja-blank');
+    const checkHanjaCross = document.getElementById('check-hanja-cross');
+    const checkHanjaMascot = document.getElementById('check-hanja-mascot');
+
+    function renderHanjaWorksheet() {
+      const hanjaData = hanjaList[selectedHanjaIndex] || hanjaList[0];
+      const totalRows = parseInt(selectHanjaRows.value, 10) || 4;
+      const blankRowCount = parseInt(selectHanjaBlank.value, 10) || 1;
+      const showCross = checkHanjaCross.checked;
+      const showMascot = checkHanjaMascot.checked;
+
+      displayBody.innerHTML = '';
+      const hanjaContainer = document.createElement('div');
+      hanjaContainer.className = 'hanja-container';
+
+      const appleIcons = '🍎 '.repeat(hanjaData.num).trim();
+
+      const heroCard = document.createElement('div');
+      heroCard.className = 'hanja-hero-card';
+      heroCard.innerHTML = `
+        <div class="hero-char-box">
+          <span class="hero-char-big">${hanjaData.char}</span>
+        </div>
+        <div class="hero-info-box">
+          <div class="hero-sound-wrap">
+            <span class="hero-mean-badge">${hanjaData.mean}</span>
+            <span class="hero-sound-badge">${hanjaData.sound}</span>
+          </div>
+          <div class="hero-meta-desc">
+            <span class="counting-apples">${appleIcons}</span>
+            <span>👉 ${hanjaData.countText}</span>
+          </div>
+        </div>
+        ${showMascot ? `
+          <div class="hero-mascot-box">
+            <div class="mascot-emoji">🐥</div>
+            <div class="mascot-speech">천천히 따라 써요!</div>
+          </div>
+        ` : ''}
+      `;
+      hanjaContainer.appendChild(heroCard);
+
+      const gridWrap = document.createElement('div');
+      gridWrap.className = 'hanja-grid-wrap';
+
+      const colsPerRow = 5;
+
+      for (let r = 0; r < totalRows; r++) {
+        const row = document.createElement('div');
+        row.className = 'hanja-row';
+
+        const isBlankRow = (r >= totalRows - blankRowCount);
+
+        for (let c = 0; c < colsPerRow; c++) {
+          const isFirstCell = (r === 0 && c === 0);
+
+          const cell = document.createElement('div');
+          cell.className = 'hanja-cell' + (showCross ? ' has-cross' : '');
+
+          if (isFirstCell) {
+            cell.classList.add('hanja-model');
+          } else if (isBlankRow) {
+            cell.classList.add('hanja-blank');
+          } else {
+            cell.classList.add('hanja-trace');
+          }
+
+          const subLabel = document.createElement('span');
+          subLabel.className = 'hanja-sub-label';
+          subLabel.textContent = `${hanjaData.mean} ${hanjaData.sound}`;
+          cell.appendChild(subLabel);
+
+          const charSpan = document.createElement('span');
+          charSpan.className = 'hanja-char';
+          charSpan.textContent = hanjaData.char;
+          cell.appendChild(charSpan);
+
+          row.appendChild(cell);
+        }
+
+        gridWrap.appendChild(row);
+      }
+
+      hanjaContainer.appendChild(gridWrap);
+      displayBody.appendChild(hanjaContainer);
+    }
+
+    selectHanjaRows.addEventListener('change', () => { if (currentMode === 'hanja') renderHanjaWorksheet(); });
+    selectHanjaBlank.addEventListener('change', () => { if (currentMode === 'hanja') renderHanjaWorksheet(); });
+    checkHanjaCross.addEventListener('change', () => { if (currentMode === 'hanja') renderHanjaWorksheet(); });
+    checkHanjaMascot.addEventListener('change', () => { if (currentMode === 'hanja') renderHanjaWorksheet(); });
+
+    /* ==========================================================================
+       8. 기능 3: 나비 반쪽 그리기 (대칭 그림 완성) 렌더링
+       ========================================================================== */
+    const selectHalfShape = document.getElementById('select-half-shape');
+    const checkHalfHint = document.getElementById('check-half-hint');
+    const checkHalfGrid = document.getElementById('check-half-grid');
+
+    // 대칭 도안 SVG 정의 (viewBox 0 0 500 460, 대칭축 x=250)
+    const symmetryShapes = {
+      // 1) 나비 (Butterfly)
+      butterfly: {
+        name: '아름다운 나비',
+        render: function(showHint) {
+          return `
+            <!-- 모눈망 배경 (옵션) -->
+            <g class="half-grid-bg" opacity="0.3"></g>
+
+            <!-- 중앙 대칭 세로 점선 (접는 선) -->
+            <line x1="250" y1="20" x2="250" y2="440" stroke="#ff4757" stroke-width="2.5" stroke-dasharray="8 6"/>
+
+            <!-- 나비 중앙 몸통 -->
+            <!-- 머리 -->
+            <circle cx="250" cy="110" r="16" fill="#1e293b"/>
+            <!-- 몸통 -->
+            <ellipse cx="250" cy="240" rx="14" ry="110" fill="#334155"/>
+            <!-- 꼬리 -->
+            <ellipse cx="250" cy="380" rx="9" ry="25" fill="#334155"/>
+
+            <!-- 왼쪽 원본 (선명한 실선) -->
+            <g clip-path="url(#left-clip)">
+              <!-- 왼쪽 더듬이 -->
+              <path d="M 245 98 C 210 50 160 50 140 70" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="140" cy="70" r="7" fill="#ff4757"/>
+
+              <!-- 왼쪽 큰 날개 (상단) -->
+              <path d="M 245 150 C 180 60 70 80 50 180 C 35 250 120 290 245 270" fill="none" stroke="#0f172a" stroke-width="4.5" stroke-linejoin="round"/>
+              <!-- 큰 날개 내부 무늬 -->
+              <circle cx="140" cy="180" r="24" fill="none" stroke="#0f172a" stroke-width="3.5"/>
+              <circle cx="140" cy="180" r="12" fill="#ff7675"/>
+              <path d="M 235 180 C 180 170 120 220 180 250" fill="none" stroke="#0f172a" stroke-width="3" stroke-dasharray="4 4"/>
+
+              <!-- 왼쪽 작은 날개 (하단) -->
+              <path d="M 245 280 C 130 290 85 360 110 410 C 140 455 210 425 245 350" fill="none" stroke="#0f172a" stroke-width="4.5" stroke-linejoin="round"/>
+              <!-- 작은 날개 내부 무늬 -->
+              <circle cx="160" cy="370" r="16" fill="none" stroke="#0f172a" stroke-width="3.5"/>
+              <circle cx="160" cy="370" r="8" fill="#74b9ff"/>
+            </g>
+
+            <!-- 오른쪽 영역 (기본: 백지 / 힌트 시: 흐린 점선) -->
+            ${showHint ? `
+            <g clip-path="url(#right-clip)" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.65">
+              <!-- 오른쪽 더듬이 -->
+              <path d="M 255 98 C 290 50 340 50 360 70" stroke-linecap="round"/>
+              <circle cx="360" cy="70" r="7"/>
+
+              <!-- 오른쪽 큰 날개 -->
+              <path d="M 255 150 C 320 60 430 80 450 180 C 465 250 380 290 255 270"/>
+              <circle cx="360" cy="180" r="24"/>
+              <circle cx="360" cy="180" r="12"/>
+              <path d="M 265 180 C 320 170 380 220 320 250"/>
+
+              <!-- 오른쪽 작은 날개 -->
+              <path d="M 255 280 C 370 290 415 360 390 410 C 360 455 290 425 255 350"/>
+              <circle cx="340" cy="370" r="16"/>
+              <circle cx="340" cy="370" r="8"/>
+            </g>
+            ` : ''}
+          `;
+        }
+      },
+      // 2) 곰돌이 얼굴 (Bear)
+      bear: {
+        name: '귀여운 곰돌이',
+        render: function(showHint) {
+          return `
+            <!-- 중앙 대칭선 -->
+            <line x1="250" y1="20" x2="250" y2="440" stroke="#ff4757" stroke-width="2.5" stroke-dasharray="8 6"/>
+
+            <!-- 왼쪽 원본 -->
+            <g clip-path="url(#left-clip)">
+              <!-- 귀 외곽 & 내부 -->
+              <circle cx="140" cy="110" r="45" fill="none" stroke="#0f172a" stroke-width="4.5"/>
+              <circle cx="140" cy="110" r="24" fill="#ff7675" stroke="#0f172a" stroke-width="3"/>
+
+              <!-- 얼굴 윤곽 -->
+              <path d="M 250 80 C 130 80 60 160 60 270 C 60 380 150 430 250 430" fill="none" stroke="#0f172a" stroke-width="4.5"/>
+
+              <!-- 눈 -->
+              <circle cx="180" cy="230" r="14" fill="#0f172a"/>
+              <circle cx="176" cy="226" r="4" fill="#ffffff"/>
+
+              <!-- 볼터치 -->
+              <ellipse cx="140" cy="300" rx="20" ry="12" fill="#ffeaa7"/>
+
+              <!-- 주둥이 원 & 코 & 입 -->
+              <path d="M 250 240 C 180 240 180 370 250 370" fill="none" stroke="#0f172a" stroke-width="3.5"/>
+              <path d="M 250 270 C 230 270 220 290 250 300" fill="#0f172a" stroke="#0f172a" stroke-width="2"/>
+              <path d="M 250 300 C 220 330 230 350 250 350" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round"/>
+            </g>
+
+            <!-- 오른쪽 힌트선 -->
+            ${showHint ? `
+            <g clip-path="url(#right-clip)" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.65">
+              <circle cx="360" cy="110" r="45"/>
+              <circle cx="360" cy="110" r="24"/>
+              <path d="M 250 80 C 370 80 440 160 440 270 C 440 380 350 430 250 430"/>
+              <circle cx="320" cy="230" r="14"/>
+              <ellipse cx="360" cy="300" rx="20" ry="12"/>
+              <path d="M 250 240 C 320 240 320 370 250 370"/>
+              <path d="M 250 270 C 270 270 280 290 250 300"/>
+              <path d="M 250 300 C 280 330 270 350 250 350"/>
+            </g>
+            ` : ''}
+          `;
+        }
+      },
+      // 3) 꼬마 로봇 (Robot)
+      robot: {
+        name: '멋진 꼬마 로봇',
+        render: function(showHint) {
+          return `
+            <line x1="250" y1="20" x2="250" y2="440" stroke="#ff4757" stroke-width="2.5" stroke-dasharray="8 6"/>
+
+            <!-- 왼쪽 원본 -->
+            <g clip-path="url(#left-clip)">
+              <!-- 안테나 -->
+              <line x1="250" y1="80" x2="250" y2="40" stroke="#0f172a" stroke-width="4"/>
+              <circle cx="250" cy="40" r="10" fill="#ff4757"/>
+
+              <!-- 귀 안테나 -->
+              <rect x="80" y="145" width="20" height="30" rx="4" fill="#74b9ff" stroke="#0f172a" stroke-width="3"/>
+
+              <!-- 머리 상자 -->
+              <rect x="100" y="80" width="300" height="160" rx="14" fill="none" stroke="#0f172a" stroke-width="4.5"/>
+
+              <!-- 눈 -->
+              <circle cx="180" cy="150" r="22" fill="none" stroke="#0f172a" stroke-width="3.5"/>
+              <circle cx="180" cy="150" r="10" fill="#0f172a"/>
+
+              <!-- 입 (게이지) -->
+              <path d="M 180 210 L 250 210" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+
+              <!-- 목 -->
+              <rect x="220" y="240" width="60" height="20" fill="#dfe6e9" stroke="#0f172a" stroke-width="3"/>
+
+              <!-- 몸통 -->
+              <rect x="110" y="260" width="280" height="160" rx="12" fill="none" stroke="#0f172a" stroke-width="4.5"/>
+
+              <!-- 가슴 계기판 & 버튼 -->
+              <rect x="140" y="290" width="80" height="50" rx="6" fill="#ffeaa7" stroke="#0f172a" stroke-width="3"/>
+              <circle cx="170" cy="380" r="12" fill="#ff7675" stroke="#0f172a" stroke-width="3"/>
+            </g>
+
+            <!-- 오른쪽 힌트선 -->
+            ${showHint ? `
+            <g clip-path="url(#right-clip)" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.65">
+              <rect x="400" y="145" width="20" height="30" rx="4"/>
+              <rect x="100" y="80" width="300" height="160" rx="14"/>
+              <circle cx="320" cy="150" r="22"/>
+              <circle cx="320" cy="150" r="10"/>
+              <path d="M 250 210 L 320 210"/>
+              <rect x="110" y="260" width="280" height="160" rx="12"/>
+              <rect x="280" y="290" width="80" height="50" rx="6"/>
+              <circle cx="330" cy="380" r="12"/>
+            </g>
+            ` : ''}
+          `;
+        }
+      },
+      // 4) 달콤한 사과 (Apple)
+      apple: {
+        name: '맛있는 사과',
+        render: function(showHint) {
+          return `
+            <line x1="250" y1="20" x2="250" y2="440" stroke="#ff4757" stroke-width="2.5" stroke-dasharray="8 6"/>
+
+            <!-- 왼쪽 원본 -->
+            <g clip-path="url(#left-clip)">
+              <!-- 꼭지 & 잎사귀 -->
+              <path d="M 250 140 C 240 70 210 50 190 45" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>
+              <path d="M 245 80 C 190 70 170 110 200 130 C 230 140 245 100 245 80 Z" fill="#55efc4" stroke="#0f172a" stroke-width="3.5"/>
+
+              <!-- 사과 본체 -->
+              <path d="M 250 140 C 180 110 80 140 70 260 C 60 380 170 425 250 395" fill="none" stroke="#0f172a" stroke-width="4.5"/>
+
+              <!-- 사과 씨앗 -->
+              <path d="M 200 270 C 190 260 210 240 210 250 C 210 265 205 275 200 270 Z" fill="#0f172a"/>
+              <!-- 하이라이트 빛 -->
+              <path d="M 120 200 C 110 250 110 300 125 340" fill="none" stroke="#ff7675" stroke-width="3.5" stroke-linecap="round"/>
+            </g>
+
+            <!-- 오른쪽 힌트선 -->
+            ${showHint ? `
+            <g clip-path="url(#right-clip)" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.65">
+              <path d="M 250 140 C 320 110 420 140 430 260 C 440 380 330 425 250 395"/>
+              <path d="M 300 270 C 310 260 290 240 290 250 C 290 265 295 275 300 270 Z"/>
+              <path d="M 380 200 C 390 250 390 300 375 340"/>
+            </g>
+            ` : ''}
+          `;
+        }
+      }
+    };
+
+    function renderHalfDrawing() {
+      const shapeKey = selectHalfShape.value;
+      const preset = symmetryShapes[shapeKey] || symmetryShapes.butterfly;
+      const showHint = checkHalfHint.checked;
+      const showGrid = checkHalfGrid.checked;
+
+      displayBody.innerHTML = '';
+      const halfContainer = document.createElement('div');
+      halfContainer.className = 'half-container';
+
+      // 1) 상단 안내 띠
+      const banner = document.createElement('div');
+      banner.className = 'half-banner';
+      banner.innerHTML = `
+        <span>👈 <strong>왼쪽</strong>을 관찰하고, <strong>오른쪽</strong>에 똑같이 그려서 완성해 보세요!</span>
+        <span style="font-size: 11px; color: #64748b;">(도안: ${preset.name})</span>
+      `;
+      halfContainer.appendChild(banner);
+
+      // 2) 중앙 SVG 캔버스 영역
+      const canvasBox = document.createElement('div');
+      canvasBox.className = 'half-canvas-box';
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'half-canvas-svg');
+      svg.setAttribute('viewBox', '0 0 500 460');
+
+      // 클립패스 정의 (왼쪽 절반 / 오른쪽 절반)
+      let defs = `
+        <defs>
+          <clipPath id="left-clip">
+            <rect x="0" y="0" width="250" height="460"/>
+          </clipPath>
+          <clipPath id="right-clip">
+            <rect x="250" y="0" width="250" height="460"/>
+          </clipPath>
+        </defs>
+      `;
+
+      // 보조 모눈선 패턴 (옵션)
+      let gridSvg = '';
+      if (showGrid) {
+        gridSvg = `
+          <g stroke="#f1f5f9" stroke-width="1.5">
+            ${Array.from({length: 19}, (_, i) => `<line x1="${(i+1)*25}" y1="0" x2="${(i+1)*25}" y2="460"/>`).join('')}
+            ${Array.from({length: 17}, (_, i) => `<line x1="0" y1="${(i+1)*25}" x2="500" y2="${(i+1)*25}"/>`).join('')}
+          </g>
+        `;
+      }
+
+      // 좌/우 영역 라벨 뱃지
+      const labelsSvg = `
+        <g font-family="Pretendard, sans-serif" font-size="12" font-weight="700">
+          <rect x="15" y="15" width="80" height="24" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="55" y="31" fill="#475569" text-anchor="middle">👀 원본 보기</text>
+
+          <rect x="405" y="15" width="80" height="24" rx="6" fill="#fff0f2" stroke="#ffb8b8" stroke-width="1.5"/>
+          <text x="445" y="31" fill="#e11d48" text-anchor="middle">✏️ 내가 그리기</text>
+        </g>
+      `;
+
+      svg.innerHTML = defs + gridSvg + labelsSvg + preset.render(showHint);
+      canvasBox.appendChild(svg);
+      halfContainer.appendChild(canvasBox);
+
+      // 3) 하단 격려 팁
+      const tipNote = document.createElement('div');
+      tipNote.className = 'half-tip-note';
+      tipNote.innerHTML = `🎨 반쪽을 다 그린 후, 양쪽 날개와 몸통을 크레파스로 예쁘게 색칠해 보세요!`;
+      halfContainer.appendChild(tipNote);
+
+      displayBody.appendChild(halfContainer);
+    }
+
+    selectHalfShape.addEventListener('change', () => { if (currentMode === 'half') renderHalfDrawing(); });
+    checkHalfHint.addEventListener('change', () => { if (currentMode === 'half') renderHalfDrawing(); });
+    checkHalfGrid.addEventListener('change', () => { if (currentMode === 'half') renderHalfDrawing(); });
+
+    /* ==========================================================================
+       9. 기능 4: 운필력 선 긋기 렌더링
+       ========================================================================== */
+    const selectLineDifficulty = document.getElementById('select-line-difficulty');
+    const selectLineCount = document.getElementById('select-line-count');
+    const selectLineStroke = document.getElementById('select-line-stroke');
+    const selectLineTheme = document.getElementById('select-line-theme');
+
+    const iconThemes = {
+      animals: [
+        { start: '🐰', end: '🥕' },
+        { start: '🐶', end: '🦴' },
+        { start: '🐱', end: '🐟' },
+        { start: '🐻', end: '🍯' },
+        { start: '🐵', end: '🍌' },
+        { start: '🐭', end: '🧀' }
+      ],
+      vehicles: [
+        { start: '🚗', end: '🏁' },
+        { start: '🚀', end: '🪐' },
+        { start: '⛵', end: '🏝️' },
+        { start: '✈️', end: '☁️' },
+        { start: '🚂', end: '🚉' },
+        { start: '🚒', end: '🔥' }
+      ],
+      fantasy: [
+        { start: '⭐', end: '🌟' },
+        { start: '🐝', end: '🌸' },
+        { start: '🧙‍♂️', end: '🏰' },
+        { start: '🐸', end: '🪷' },
+        { start: '🦋', end: '🌷' },
+        { start: '🐧', end: '🧊' }
+      ]
+    };
+
+    function generateSvgPath(type, width = 500, height = 40) {
+      const midY = height / 2;
+      const startX = 5;
+      const endX = width - 5;
+      const drawWidth = endX - startX;
+
+      if (type === 'straight') {
+        return `M ${startX} ${midY} L ${endX} ${midY}`;
+      } else if (type === 'zigzag') {
+        const segments = 10;
+        const segWidth = drawWidth / segments;
+        const amp = 14;
+        let d = `M ${startX} ${midY}`;
+        for (let i = 1; i <= segments; i++) {
+          const currentX = startX + i * segWidth;
+          const currentY = (i % 2 === 1) ? (midY - amp) : (midY + amp);
+          d += (i === segments) ? ` L ${endX} ${midY}` : ` L ${currentX} ${currentY}`;
+        }
+        return d;
+      } else if (type === 'wave') {
+        const waves = 5;
+        const waveWidth = drawWidth / waves;
+        const halfWave = waveWidth / 2;
+        const amp = 13;
+        let d = `M ${startX} ${midY}`;
+        for (let i = 0; i < waves; i++) {
+          const x0 = startX + i * waveWidth;
+          const cp1x = x0 + halfWave / 2;
+          const cp1y = midY - amp;
+          const p1x = x0 + halfWave;
+          const p1y = midY;
+          const cp2x = p1x + halfWave / 2;
+          const cp2y = midY + amp;
+          const p2x = x0 + waveWidth;
+          const p2y = midY;
+          d += ` Q ${cp1x} ${cp1y}, ${p1x} ${p1y} Q ${cp2x} ${cp2y}, ${p2x} ${p2y}`;
+        }
+        return d;
+      }
+      return `M ${startX} ${midY} L ${endX} ${midY}`;
+    }
+
+    function renderLineTracing() {
+      const lineCount = parseInt(selectLineCount.value, 10) || 5;
+      const difficulty = selectLineDifficulty.value;
+      const strokeWidth = parseInt(selectLineStroke.value, 10) || 4;
+      const themeKey = selectLineTheme.value;
+
+      let themeList = (themeKey === 'mixed')
+        ? [...iconThemes.animals, ...iconThemes.vehicles, ...iconThemes.fantasy]
+        : [...(iconThemes[themeKey] || iconThemes.animals)];
+
+      displayBody.innerHTML = '';
+      const lineContainer = document.createElement('div');
+      lineContainer.className = 'line-container';
+
+      const diffTypes = ['straight', 'zigzag', 'wave'];
+
+      for (let i = 0; i < lineCount; i++) {
+        let currentType = (difficulty === 'mixed') ? diffTypes[i % diffTypes.length] : difficulty;
+        const iconPair = themeList[i % themeList.length];
+
+        const row = document.createElement('div');
+        row.className = 'line-row';
+
+        const startBadge = document.createElement('div');
+        startBadge.className = 'point-badge point-start';
+        startBadge.innerHTML = `
+          <div class="point-icon">${iconPair.start}</div>
+          <div class="point-text">출발</div>
+        `;
+
+        const svgWrap = document.createElement('div');
+        svgWrap.className = 'line-svg-wrap';
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'line-svg');
+        svg.setAttribute('viewBox', '0 0 500 40');
+        svg.setAttribute('preserveAspectRatio', 'none');
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const pathData = generateSvgPath(currentType, 500, 40);
+
+        path.setAttribute('d', pathData);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#718096');
+        path.setAttribute('stroke-width', strokeWidth);
+        path.setAttribute('stroke-dasharray', `${strokeWidth * 2.2} ${strokeWidth * 1.8}`);
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+
+        svg.appendChild(path);
+        svgWrap.appendChild(svg);
+
+        const endBadge = document.createElement('div');
+        endBadge.className = 'point-badge point-end';
+        endBadge.innerHTML = `
+          <div class="point-icon">${iconPair.end}</div>
+          <div class="point-text">도착</div>
+        `;
+
+        row.appendChild(startBadge);
+        row.appendChild(svgWrap);
+        row.appendChild(endBadge);
+        lineContainer.appendChild(row);
+      }
+
+      displayBody.appendChild(lineContainer);
+    }
+
+    selectLineDifficulty.addEventListener('change', () => { if (currentMode === 'line') renderLineTracing(); });
+    selectLineCount.addEventListener('change', () => { if (currentMode === 'line') renderLineTracing(); });
+    selectLineStroke.addEventListener('change', () => { if (currentMode === 'line') renderLineTracing(); });
+    selectLineTheme.addEventListener('change', () => { if (currentMode === 'line') renderLineTracing(); });
+
+    /* ==========================================================================
+       10. 기능 5: 가위질 연습 도안 렌더링
+       ========================================================================== */
+    const selectScissorType = document.getElementById('select-scissor-type');
+    const selectScissorCount = document.getElementById('select-scissor-count');
+    const selectScissorTheme = document.getElementById('select-scissor-theme');
+
+    const scissorThemeIcons = {
+      presents: ['🎁', '🧸', '🎈', '🚗', '🎨'],
+      fruits: ['🍎', '🍌', '🍓', '🍇', '🍉'],
+      animals: ['🐶', '🐱', '🐰', '🐼', '🦁']
+    };
+
+    function generateVerticalCutPath(type, width = 60, height = 360) {
+      const midX = width / 2;
+      const startY = height - 5;
+      const endY = 5;
+      const totalH = startY - endY;
+
+      if (type === 'straight') {
+        return `M ${midX} ${startY} L ${midX} ${endY}`;
+      } else if (type === 'wide-zigzag') {
+        const segments = 6;
+        const segH = totalH / segments;
+        const amp = 18;
+        let d = `M ${midX} ${startY}`;
+        for (let i = 1; i <= segments; i++) {
+          const curY = startY - i * segH;
+          const curX = (i % 2 === 1) ? (midX - amp) : (midX + amp);
+          d += (i === segments) ? ` L ${midX} ${endY}` : ` L ${curX} ${curY}`;
+        }
+        return d;
+      } else if (type === 'wave') {
+        const waves = 4;
+        const waveH = totalH / waves;
+        const halfH = waveH / 2;
+        const amp = 16;
+        let d = `M ${midX} ${startY}`;
+        for (let i = 0; i < waves; i++) {
+          const y0 = startY - i * waveH;
+          const cp1x = midX - amp;
+          const cp1y = y0 - halfH / 2;
+          const p1x = midX;
+          const p1y = y0 - halfH;
+          const cp2x = midX + amp;
+          const cp2y = p1y - halfH / 2;
+          const p2x = midX;
+          const p2y = y0 - waveH;
+          d += ` Q ${cp1x} ${cp1y}, ${p1x} ${p1y} Q ${cp2x} ${cp2y}, ${p2x} ${p2y}`;
+        }
+        return d;
+      }
+      return `M ${midX} ${startY} L ${midX} ${endY}`;
+    }
+
+    function renderScissorCutting() {
+      const colCount = parseInt(selectScissorCount.value, 10) || 4;
+      const cutType = selectScissorType.value;
+      const themeKey = selectScissorTheme.value;
+      const targetIcons = scissorThemeIcons[themeKey] || scissorThemeIcons.presents;
+
+      displayBody.innerHTML = '';
+      const scissorContainer = document.createElement('div');
+      scissorContainer.className = 'scissor-container';
+
+      const types = ['straight', 'wide-zigzag', 'wave'];
+
+      for (let i = 0; i < colCount; i++) {
+        let currentType = (cutType === 'mixed') ? types[i % types.length] : cutType;
+        const icon = targetIcons[i % targetIcons.length];
+
+        const col = document.createElement('div');
+        col.className = 'scissor-column';
+
+        const target = document.createElement('div');
+        target.className = 'scissor-target';
+        target.innerHTML = `
+          <div class="target-icon">${icon}</div>
+          <div class="target-text">싹둑 도착!</div>
+        `;
+
+        const svgWrap = document.createElement('div');
+        svgWrap.className = 'scissor-svg-wrap';
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'scissor-svg');
+        svg.setAttribute('viewBox', '0 0 60 360');
+        svg.setAttribute('preserveAspectRatio', 'none');
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const pathData = generateVerticalCutPath(currentType, 60, 360);
+
+        path.setAttribute('d', pathData);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#334155');
+        path.setAttribute('stroke-width', '4');
+        path.setAttribute('stroke-dasharray', '10 8');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+
+        svg.appendChild(path);
+        svgWrap.appendChild(svg);
+
+        const start = document.createElement('div');
+        start.className = 'scissor-start';
+        start.innerHTML = `
+          <div class="scissor-icon">✂️</div>
+          <div class="scissor-label">여기서 출발</div>
+        `;
+
+        col.appendChild(target);
+        col.appendChild(svgWrap);
+        col.appendChild(start);
+
+        scissorContainer.appendChild(col);
+      }
+
+      displayBody.appendChild(scissorContainer);
+    }
+
+    selectScissorType.addEventListener('change', () => { if (currentMode === 'scissor') renderScissorCutting(); });
+    selectScissorCount.addEventListener('change', () => { if (currentMode === 'scissor') renderScissorCutting(); });
+    selectScissorTheme.addEventListener('change', () => { if (currentMode === 'scissor') renderScissorCutting(); });
+
+    /* ==========================================================================
+       11. 기능 6: 칭찬 스티커판 렌더링
+       ========================================================================== */
+    const inputStickerName = document.getElementById('input-sticker-name');
+    const selectStickerCount = document.getElementById('select-sticker-count');
+    const inputStickerReward = document.getElementById('input-sticker-reward');
+
+    function renderStickerBoard() {
+      const name = inputStickerName.value.trim() || '김지훈';
+      const targetCount = parseInt(selectStickerCount.value, 10) || 20;
+      const reward = inputStickerReward.value.trim() || '칭찬 듬뿍과 멋진 보상 받기!';
+
+      displayBody.innerHTML = '';
+      const stickerContainer = document.createElement('div');
+      stickerContainer.className = 'sticker-container';
+
+      const banner = document.createElement('div');
+      banner.className = 'sticker-promise-banner';
+      banner.innerHTML = `
+        <div class="promise-title">🎁 스티커를 다 모으면:</div>
+        <div class="promise-text">${reward}</div>
+        <div style="font-size: 20px;">🎉</div>
+      `;
+      stickerContainer.appendChild(banner);
+
+      const grid = document.createElement('div');
+      grid.className = 'sticker-grid';
+
+      let cols = 5;
+      let circleSize = 64;
+      if (targetCount === 10) {
+        cols = 5;
+        circleSize = 78;
+        grid.style.gap = '18px';
+      } else if (targetCount === 20) {
+        cols = 5;
+        circleSize = 64;
+        grid.style.gap = '14px';
+      } else if (targetCount === 30) {
+        cols = 6;
+        circleSize = 52;
+        grid.style.gap = '10px';
+      }
+
+      grid.style.gridTemplateColumns = `repeat(${cols}, ${circleSize}px)`;
+
+      for (let i = 1; i <= targetCount; i++) {
+        const circle = document.createElement('div');
+        circle.className = 'sticker-circle';
+        circle.style.width = `${circleSize}px`;
+        circle.style.height = `${circleSize}px`;
+
+        const isGoal = (i === targetCount);
+        if (isGoal) {
+          circle.classList.add('goal-circle');
+          circle.innerHTML = `
+            <div class="sticker-subicon">👑</div>
+            <div class="sticker-num">GOAL!</div>
+          `;
+        } else {
+          circle.innerHTML = `
+            <div class="sticker-num">${i}</div>
+            <div class="sticker-subicon">★</div>
+          `;
+        }
+
+        grid.appendChild(circle);
+      }
+      stickerContainer.appendChild(grid);
+
+      const note = document.createElement('div');
+      note.className = 'sticker-bottom-note';
+      note.innerHTML = `
+        <span>❤️ <strong>${name}</strong> 어린이는 언제나 스스로 바르게 행동해요!</span>
+        <span>확인 서명: _______________</span>
+      `;
+      stickerContainer.appendChild(note);
+
+      displayBody.appendChild(stickerContainer);
+    }
+
+    inputStickerName.addEventListener('input', (e) => {
+      const name = e.target.value.trim() || '김지훈';
+      if (currentMode === 'sticker') {
+        updateHeaders(`👑 ${name}의 칭찬 스티커판`, defaultTitles['sticker'].subtitle);
+        renderStickerBoard();
+      }
+    });
+
+    selectStickerCount.addEventListener('change', () => { if (currentMode === 'sticker') renderStickerBoard(); });
+    inputStickerReward.addEventListener('input', () => { if (currentMode === 'sticker') renderStickerBoard(); });
+
+    /* ==========================================================================
+       12. 기능 7: 숫자 순서대로 점 잇기 (Dot-to-Dot) 렌더링
+       ========================================================================== */
+    const selectDotShape = document.getElementById('select-dot-shape');
+    const checkDotGuide = document.getElementById('check-dot-guide');
+    const checkDotStartFlag = document.getElementById('check-dot-start-flag');
+
+    const dotPresets = {
+      star: {
+        name: '반짝반짝 별',
+        points: [
+          { num: 1,  x: 250, y: 55,  dx: 0,   dy: -18 },
+          { num: 2,  x: 300, y: 195, dx: 18,  dy: -5  },
+          { num: 3,  x: 440, y: 195, dx: 18,  dy: 5   },
+          { num: 4,  x: 335, y: 280, dx: 18,  dy: 8   },
+          { num: 5,  x: 375, y: 420, dx: 14,  dy: 20  },
+          { num: 6,  x: 250, y: 340, dx: 0,   dy: 22  },
+          { num: 7,  x: 125, y: 420, dx: -18, dy: 20  },
+          { num: 8,  x: 165, y: 280, dx: -20, dy: 8   },
+          { num: 9,  x: 60,  y: 195, dx: -20, dy: 5   },
+          { num: 10, x: 200, y: 195, dx: -18, dy: -5  }
+        ]
+      },
+      house: {
+        name: '예쁜 우리 집',
+        points: [
+          { num: 1,  x: 250, y: 65,  dx: 0,   dy: -18 },
+          { num: 2,  x: 320, y: 110, dx: 16,  dy: -14 },
+          { num: 3,  x: 355, y: 110, dx: 18,  dy: -10 },
+          { num: 4,  x: 355, y: 160, dx: 22,  dy: 5   },
+          { num: 5,  x: 430, y: 215, dx: 18,  dy: 10  },
+          { num: 6,  x: 380, y: 430, dx: 18,  dy: 16  },
+          { num: 7,  x: 290, y: 430, dx: 12,  dy: 22  },
+          { num: 8,  x: 210, y: 430, dx: -14, dy: 22  },
+          { num: 9,  x: 120, y: 430, dx: -18, dy: 16  },
+          { num: 10, x: 70,  y: 215, dx: -20, dy: 10  }
+        ]
+      },
+      sailboat: {
+        name: '바다 위 돛단배',
+        points: [
+          { num: 1,  x: 250, y: 60,  dx: 0,   dy: -18 },
+          { num: 2,  x: 420, y: 265, dx: 18,  dy: 0   },
+          { num: 3,  x: 250, y: 265, dx: 14,  dy: 14  },
+          { num: 4,  x: 440, y: 325, dx: 18,  dy: 0   },
+          { num: 5,  x: 380, y: 430, dx: 14,  dy: 20  },
+          { num: 6,  x: 120, y: 430, dx: -16, dy: 20  },
+          { num: 7,  x: 60,  y: 325, dx: -20, dy: 0   },
+          { num: 8,  x: 240, y: 325, dx: -14, dy: 14  },
+          { num: 9,  x: 100, y: 265, dx: -20, dy: 0   },
+          { num: 10, x: 240, y: 160, dx: -18, dy: -5  }
+        ]
+      },
+      apple: {
+        name: '달콤한 사과',
+        points: [
+          { num: 1,  x: 250, y: 55,  dx: 0,   dy: -18 },
+          { num: 2,  x: 345, y: 80,  dx: 18,  dy: -12 },
+          { num: 3,  x: 270, y: 135, dx: 16,  dy: 0   },
+          { num: 4,  x: 390, y: 175, dx: 18,  dy: -5  },
+          { num: 5,  x: 425, y: 290, dx: 20,  dy: 0   },
+          { num: 6,  x: 350, y: 425, dx: 16,  dy: 18  },
+          { num: 7,  x: 250, y: 395, dx: 0,   dy: 20  },
+          { num: 8,  x: 150, y: 425, dx: -16, dy: 18  },
+          { num: 9,  x: 75,  y: 290, dx: -20, dy: 0   },
+          { num: 10, x: 110, y: 175, dx: -18, dy: -5  }
+        ]
+      }
+    };
+
+    function renderDotToDot() {
+      const shapeKey = selectDotShape.value;
+      const preset = dotPresets[shapeKey] || dotPresets.star;
+      const showGuide = checkDotGuide.checked;
+      const showFlag = checkDotStartFlag.checked;
+
+      displayBody.innerHTML = '';
+      const dotContainer = document.createElement('div');
+      dotContainer.className = 'dot-container';
+
+      const instructionBar = document.createElement('div');
+      instructionBar.className = 'dot-instruction-bar';
+      instructionBar.innerHTML = `
+        <span>🚩 <strong>1번</strong>부터 <strong>10번</strong>까지 숫자를 찾아 순서대로 이어보세요!</span>
+        <span style="font-size: 11px; color: #64748b;">(도안: ${preset.name})</span>
+      `;
+      dotContainer.appendChild(instructionBar);
+
+      const canvasWrap = document.createElement('div');
+      canvasWrap.className = 'dot-svg-canvas';
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'dot-canvas-svg');
+      svg.setAttribute('viewBox', '0 0 500 500');
+
+      if (showGuide) {
+        let pathD = `M ${preset.points[0].x} ${preset.points[0].y}`;
+        for (let i = 1; i < preset.points.length; i++) {
+          pathD += ` L ${preset.points[i].x} ${preset.points[i].y}`;
+        }
+        pathD += ` Z`;
+
+        const guidePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        guidePath.setAttribute('d', pathD);
+        guidePath.setAttribute('fill', 'none');
+        guidePath.setAttribute('stroke', '#e2e8f0');
+        guidePath.setAttribute('stroke-width', '2');
+        guidePath.setAttribute('stroke-dasharray', '6 6');
+        svg.appendChild(guidePath);
+      }
+
+      preset.points.forEach(pt => {
+        const isStart = (pt.num === 1);
+
+        if (isStart && showFlag) {
+          const startRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          startRing.setAttribute('cx', pt.x);
+          startRing.setAttribute('cy', pt.y);
+          startRing.setAttribute('r', '14');
+          startRing.setAttribute('fill', 'none');
+          startRing.setAttribute('stroke', '#ff4757');
+          startRing.setAttribute('stroke-width', '2.5');
+          startRing.setAttribute('stroke-dasharray', '3 3');
+          svg.appendChild(startRing);
+        }
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', pt.x);
+        circle.setAttribute('cy', pt.y);
+        circle.setAttribute('r', isStart ? '8' : '6.5');
+        circle.setAttribute('fill', isStart ? '#e11d48' : '#1e293b');
+        circle.setAttribute('stroke', '#ffffff');
+        circle.setAttribute('stroke-width', '1.5');
+        svg.appendChild(circle);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', pt.x + pt.dx);
+        text.setAttribute('y', pt.y + pt.dy);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'central');
+        text.setAttribute('font-size', isStart ? '21' : '18');
+        text.setAttribute('font-weight', '800');
+        text.setAttribute('font-family', 'Pretendard, sans-serif');
+        text.setAttribute('fill', isStart ? '#e11d48' : '#0f172a');
+        text.textContent = (isStart && showFlag) ? `1` : `${pt.num}`;
+        svg.appendChild(text);
+      });
+
+      canvasWrap.appendChild(svg);
+      dotContainer.appendChild(canvasWrap);
+
+      const tipNote = document.createElement('div');
+      tipNote.className = 'dot-tip-note';
+      tipNote.innerHTML = `🎨 선을 모두 이어서 그림을 완성한 후, 색연필이나 크레파스로 예쁘게 색칠해 보세요!`;
+      dotContainer.appendChild(tipNote);
+
+      displayBody.appendChild(dotContainer);
+    }
+
+    selectDotShape.addEventListener('change', () => { if (currentMode === 'dot') renderDotToDot(); });
+    checkDotGuide.addEventListener('change', () => { if (currentMode === 'dot') renderDotToDot(); });
+    checkDotStartFlag.addEventListener('change', () => { if (currentMode === 'dot') renderDotToDot(); });
+
+    /* ==========================================================================
+       13. 공통 서식 설정 연동
+       ========================================================================== */
+    const inputTitle = document.getElementById('input-title');
+    const displayTitle = document.getElementById('display-title');
+    inputTitle.addEventListener('input', (e) => {
+      displayTitle.textContent = e.target.value.trim() || '학습지 제목';
+    });
+
+    const inputSubtitle = document.getElementById('input-subtitle');
+    const displaySubtitle = document.getElementById('display-subtitle');
+    inputSubtitle.addEventListener('input', (e) => {
+      displaySubtitle.textContent = e.target.value.trim();
+    });
+
+    const checkName = document.getElementById('check-name');
+    const displayMeta = document.getElementById('display-meta');
+    checkName.addEventListener('change', (e) => {
+      displayMeta.style.display = e.target.checked ? 'flex' : 'none';
+    });
+
+    const inputFooter = document.getElementById('input-footer');
+    const displayFooter = document.getElementById('display-footer');
+    inputFooter.addEventListener('input', (e) => {
+      displayFooter.textContent = e.target.value.trim();
+    });
+
+    // 초기 실행
+    renderWorksheet();
+  </script>
+</body>
+</html>
