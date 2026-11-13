@@ -665,16 +665,17 @@
       display: none;
     }
 
-    /* 2) 기초 한자 쓰기 전용 스타일 */
+    /* 2) 기초 한자 쓰기 전용 스타일 (상단 정보 카드 고정 + 가운데 쓰는 격자가 페이지 정중앙에 시원하게 배치) */
     .hanja-container {
       width: 100%;
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      gap: 24px;
-      padding: 0;
+      gap: 0;
+      padding: 2px 0 8px 0;
+      box-sizing: border-box;
     }
 
     .hanja-hero-card {
@@ -684,14 +685,16 @@
       background: #f8fafc;
       border: 2px solid #e2e8f0;
       border-radius: 14px;
-      padding: 14px 22px;
+      padding: 12px 22px;
       width: 100%;
       box-sizing: border-box;
+      flex-shrink: 0;
+      margin-bottom: 6px;
     }
 
     .hero-char-box {
-      width: 86px;
-      height: 86px;
+      width: 82px;
+      height: 82px;
       background: #ffffff;
       border: 2.5px solid #1e293b;
       border-radius: 12px;
@@ -702,7 +705,7 @@
     }
 
     .hero-char-big {
-      font-size: 62px;
+      font-size: 60px;
       font-family: 'Batang', 'Nanum Myeongjo', serif;
       font-weight: 800;
       color: #0f172a;
@@ -714,7 +717,7 @@
       margin-left: 20px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
 
     .hero-sound-wrap {
@@ -777,26 +780,30 @@
       white-space: nowrap;
     }
 
+    /* 가운데 쓰는 부분이 전체 공간의 정중앙에 균형 잡혀 배치되는 래퍼 */
     .hanja-grid-wrap {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       align-items: center;
+      justify-content: center;
       width: 100%;
       margin: 0;
     }
 
     .hanja-row {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       justify-content: center;
       width: 100%;
     }
 
+    /* 아이들이 쓰기 편하도록 84px -> 96px로 큼직하고 시원하게 확대 */
     .hanja-cell {
       position: relative;
-      width: 84px;
-      height: 84px;
+      width: 96px;
+      height: 96px;
       border: 2px solid #1e293b;
       background-color: #ffffff;
       display: flex;
@@ -804,6 +811,7 @@
       align-items: center;
       justify-content: center;
       box-sizing: border-box;
+      border-radius: 6px;
     }
 
     .hanja-cell.has-cross::before {
@@ -830,9 +838,9 @@
 
     .hanja-sub-label {
       position: absolute;
-      top: 3px;
+      top: 4px;
       left: 6px;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       color: #94a3b8;
       z-index: 2;
@@ -841,7 +849,7 @@
     .hanja-char {
       position: relative;
       z-index: 1;
-      font-size: 56px;
+      font-size: 64px;
       line-height: 1;
       font-family: 'Batang', 'Nanum Myeongjo', serif;
       user-select: none;
