@@ -108,10 +108,49 @@
       margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
     }
 
-    /* 1. 활동지 선택 카드 그리드 (2열 타일) */
+    /* ==========================================================================
+       연령대 세그먼트 필터 (전체 / 3~4세 / 5~6세 / 7세)
+       ========================================================================== */
+    .age-filter-bar {
+      display: flex;
+      background: #f1f5f9;
+      padding: 3px;
+      border-radius: 8px;
+      gap: 3px;
+      margin-bottom: 9px;
+    }
+
+    .age-filter-btn {
+      flex: 1;
+      padding: 6px 0;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #64748b;
+      transition: all 0.15s ease;
+      text-align: center;
+      user-select: none;
+    }
+
+    .age-filter-btn:hover {
+      color: var(--primary);
+      background: #f8fafc;
+    }
+
+    .age-filter-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    /* 활동지 선택 카드 그리드 (2열 타일) */
     .activity-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -130,6 +169,7 @@
       text-align: left;
       transition: all 0.18s ease;
       user-select: none;
+      position: relative;
     }
 
     .activity-card:hover {
@@ -144,6 +184,11 @@
       box-shadow: 0 3px 8px rgba(255, 71, 87, 0.15);
     }
 
+    /* 필터 숨김 */
+    .activity-card.is-hidden {
+      display: none !important;
+    }
+
     .card-icon {
       font-size: 1.25rem;
       line-height: 1;
@@ -152,6 +197,15 @@
     .card-text {
       display: flex;
       flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
     }
 
     .card-title {
@@ -159,6 +213,9 @@
       font-weight: 700;
       color: var(--text-main);
       line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .activity-card.active .card-title {
@@ -169,10 +226,57 @@
       font-size: 0.65rem;
       color: var(--text-muted);
       margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .activity-card.active .card-desc {
       color: #e05666;
+    }
+
+    /* 연령대 뱃지 */
+    .age-badge {
+      font-size: 0.58rem;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 4px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .badge-34 {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .badge-56 {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .badge-7 {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .badge-all {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    /* 7세 추가 예정 슬롯 카드 */
+    .activity-card.slot-placeholder {
+      border: 1.5px dashed #cbd5e1;
+      background-color: #fafbfc;
+      opacity: 0.8;
+      cursor: default;
+    }
+
+    .activity-card.slot-placeholder:hover {
+      transform: none;
+      border-color: #cbd5e1;
+      background-color: #fafbfc;
     }
 
     /* 2. 세부 옵션 박스 */
@@ -813,7 +917,87 @@
       border: 1px solid #e2e8f0;
     }
 
-    /* 4) 선 긋기 */
+    /* 4) 7세 초등 10칸 받아쓰기 공책 스타일 */
+    .korean10-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .korean10-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      align-items: center;
+    }
+
+    .korean10-row {
+      display: flex;
+      gap: 3px;
+      justify-content: center;
+    }
+
+    .korean10-cell {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border: 1.5px solid #1e293b;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .korean10-cell.has-cross::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 0;
+      border-top: 1px dashed #cbd5e1;
+      pointer-events: none;
+    }
+
+    .korean10-cell.has-cross::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      border-left: 1px dashed #cbd5e1;
+      pointer-events: none;
+    }
+
+    .korean10-char {
+      position: relative;
+      z-index: 1;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      font-family: 'Pretendard', sans-serif;
+    }
+
+    .korean10-model .korean10-char {
+      color: #0f172a;
+    }
+
+    .korean10-trace .korean10-char {
+      color: #cbd5e1;
+    }
+
+    .korean10-blank .korean10-char {
+      display: none;
+    }
+
+    /* 5) 선 긋기 */
     .line-container {
       width: 100%;
       height: 100%;
@@ -881,7 +1065,7 @@
       overflow: visible;
     }
 
-    /* 5) 가위질 도안 */
+    /* 6) 가위질 도안 */
     .scissor-container {
       width: 100%;
       height: 100%;
@@ -965,7 +1149,7 @@
       white-space: nowrap;
     }
 
-    /* 6) 칭찬 스티커판 */
+    /* 7) 칭찬 스티커판 */
     .sticker-container {
       width: 100%;
       height: 100%;
@@ -1069,7 +1253,7 @@
       margin-top: 10px;
     }
 
-    /* 7) 숫자 점잇기 */
+    /* 8) 숫자 점잇기 */
     .dot-container {
       width: 100%;
       height: 100%;
@@ -1189,22 +1373,24 @@
         white-space: nowrap !important;
       }
 
-      .grid-cell, .hanja-cell, .hero-char-box {
+      .grid-cell, .hanja-cell, .hero-char-box, .korean10-cell {
         border-color: #000000 !important;
       }
 
       .grid-cell.has-cross::before,
       .grid-cell.has-cross::after,
       .hanja-cell.has-cross::before,
-      .hanja-cell.has-cross::after {
+      .hanja-cell.has-cross::after,
+      .korean10-cell.has-cross::before,
+      .korean10-cell.has-cross::after {
         border-color: #bbbbbb !important;
       }
 
-      .row-model .cell-char, .hanja-model .hanja-char, .hero-char-big {
+      .row-model .cell-char, .hanja-model .hanja-char, .hero-char-big, .korean10-model .korean10-char {
         color: #000000 !important;
       }
 
-      .row-trace .cell-char, .hanja-trace .hanja-char {
+      .row-trace .cell-char, .hanja-trace .hanja-char, .korean10-trace .korean10-char {
         color: #cccccc !important;
         -webkit-text-stroke: 0 !important;
       }
@@ -1233,67 +1419,128 @@
     <header class="panel-header">
       <div class="brand-badge">🌱 어린이집 교사용 놀이도구</div>
       <h1>활동지 생성 공방</h1>
-      <p>원하는 활동지를 선택하고 바로 인쇄하세요.</p>
+      <p>연령별 맞춤 교안을 선택하고 바로 인쇄하세요.</p>
     </header>
 
     <!-- 스크롤 옵션 패널 본문 -->
     <div class="panel-content">
-      <!-- 1. 활동지 종류 선택 (2열 타일 그리드) -->
+      <!-- 1. 활동지 종류 선택 (연령대 필터링) -->
       <section>
-        <div class="section-label">📌 활동지 종류 선택</div>
+        <div class="section-label">
+          <span>📌 활동지 선택</span>
+          <span id="activity-count-text" style="font-size: 0.68rem; color: #64748b;">전체 보기</span>
+        </div>
+
+        <!-- 연령대 탭 세그먼트 필터 -->
+        <div class="age-filter-bar">
+          <button type="button" class="age-filter-btn active" data-age="all">전체</button>
+          <button type="button" class="age-filter-btn" data-age="3-4">3~4세</button>
+          <button type="button" class="age-filter-btn" data-age="5-6">5~6세</button>
+          <button type="button" class="age-filter-btn" data-age="7">7세</button>
+        </div>
+
+        <!-- 카드 그리드 (연령별 뱃지 포함) -->
         <div class="activity-grid">
-          <button type="button" class="activity-card active" data-mode="name">
-            <span class="card-icon">✏️</span>
-            <div class="card-text">
-              <span class="card-title">이름 쓰기</span>
-              <span class="card-desc">깍두기 한글</span>
-            </div>
-          </button>
-
-          <button type="button" class="activity-card" data-mode="hanja">
-            <span class="card-icon">🈴</span>
-            <div class="card-text">
-              <span class="card-title">기초 한자</span>
-              <span class="card-desc">8급 숫자 (1~10)</span>
-            </div>
-          </button>
-
-          <button type="button" class="activity-card" data-mode="half">
-            <span class="card-icon">🦋</span>
-            <div class="card-text">
-              <span class="card-title">반쪽 그리기</span>
-              <span class="card-desc">대칭 그림 완성</span>
-            </div>
-          </button>
-
-          <button type="button" class="activity-card" data-mode="line">
+          <!-- 3~4세 대표 -->
+          <button type="button" class="activity-card" data-mode="line" data-age="3-4">
             <span class="card-icon">〰️</span>
             <div class="card-text">
-              <span class="card-title">선 긋기</span>
-              <span class="card-desc">운필력 발달</span>
+              <div class="card-header-row">
+                <span class="card-title">선 긋기</span>
+                <span class="age-badge badge-34">3~4세</span>
+              </div>
+              <span class="card-desc">운필력 발달 기초</span>
             </div>
           </button>
 
-          <button type="button" class="activity-card" data-mode="scissor">
+          <button type="button" class="activity-card" data-mode="scissor" data-age="3-4">
             <span class="card-icon">✂️</span>
             <div class="card-text">
-              <span class="card-title">가위질</span>
+              <div class="card-header-row">
+                <span class="card-title">가위질</span>
+                <span class="age-badge badge-34">3~4세</span>
+              </div>
               <span class="card-desc">소근육 오리기</span>
             </div>
           </button>
 
-          <button type="button" class="activity-card" data-mode="dot">
+          <button type="button" class="activity-card" data-mode="dot" data-age="3-4">
             <span class="card-icon">🔢</span>
             <div class="card-text">
-              <span class="card-title">숫자 점잇기</span>
-              <span class="card-desc">1~10 순서</span>
+              <div class="card-header-row">
+                <span class="card-title">점 잇기</span>
+                <span class="age-badge badge-34">3~4세</span>
+              </div>
+              <span class="card-desc">1~10 순서 익히기</span>
             </div>
           </button>
 
-          <button type="button" class="activity-card" data-mode="sticker" style="grid-column: span 2;">
+          <!-- 5~6세 대표 -->
+          <button type="button" class="activity-card active" data-mode="name" data-age="5-6">
+            <span class="card-icon">✏️</span>
+            <div class="card-text">
+              <div class="card-header-row">
+                <span class="card-title">이름 쓰기</span>
+                <span class="age-badge badge-56">5~6세</span>
+              </div>
+              <span class="card-desc">한글 깍두기 공책</span>
+            </div>
+          </button>
+
+          <button type="button" class="activity-card" data-mode="hanja" data-age="5-6">
+            <span class="card-icon">🈴</span>
+            <div class="card-text">
+              <div class="card-header-row">
+                <span class="card-title">기초 한자</span>
+                <span class="age-badge badge-56">5~6세</span>
+              </div>
+              <span class="card-desc">8급 숫자 (1~10)</span>
+            </div>
+          </button>
+
+          <button type="button" class="activity-card" data-mode="half" data-age="5-6">
+            <span class="card-icon">🦋</span>
+            <div class="card-text">
+              <div class="card-header-row">
+                <span class="card-title">반쪽 그리기</span>
+                <span class="age-badge badge-56">5~6세</span>
+              </div>
+              <span class="card-desc">대칭 그림 완성</span>
+            </div>
+          </button>
+
+          <!-- 7세 (예비 초등) -->
+          <button type="button" class="activity-card" data-mode="korean10" data-age="7">
+            <span class="card-icon">📝</span>
+            <div class="card-text">
+              <div class="card-header-row">
+                <span class="card-title">10칸 공책</span>
+                <span class="age-badge badge-7">7세</span>
+              </div>
+              <span class="card-desc">초등 받아쓰기 연습</span>
+            </div>
+          </button>
+
+          <!-- 7세 추가 예정 슬롯 안내 -->
+          <div class="activity-card slot-placeholder" data-age="7">
+            <span class="card-icon">⏳</span>
+            <div class="card-text">
+              <div class="card-header-row">
+                <span class="card-title">7세 교안</span>
+                <span class="age-badge badge-7">준비중</span>
+              </div>
+              <span class="card-desc">시계/연산 추가 예정</span>
+            </div>
+          </div>
+
+          <!-- 전연령 공통 -->
+          <button type="button" class="activity-card" data-mode="sticker" data-age="all" style="grid-column: span 2;">
             <span class="card-icon">⭐</span>
             <div class="card-text">
-              <span class="card-title">칭찬 스티커판</span>
+              <div class="card-header-row">
+                <span class="card-title">칭찬 스티커판</span>
+                <span class="age-badge badge-all">전연령</span>
+              </div>
               <span class="card-desc">목표 달성 약속 및 보상 도안</span>
             </div>
           </button>
@@ -1304,11 +1551,11 @@
       <section>
         <div class="section-label">🛠️ 활동지 세부 설정</div>
 
-        <!-- 옵션 1: 이름 쓰기 -->
+        <!-- 옵션: 이름 쓰기 (5~6세) -->
         <div id="opts-name" class="options-box">
           <div class="options-box-header">
             <span>✏️ 이름 따라 쓰기 옵션</span>
-            <span class="active-badge">한글 깍두기</span>
+            <span class="active-badge">5~6세</span>
           </div>
 
           <div class="form-group">
@@ -1347,11 +1594,48 @@
           </label>
         </div>
 
-        <!-- 옵션 2: 기초 한자 쓰기 (8급 한자 1~10) -->
+        <!-- 옵션: 7세 초등 10칸 받아쓰기 공책 -->
+        <div id="opts-korean10" class="options-box" style="display: none;">
+          <div class="options-box-header">
+            <span>📝 초등 10칸 받아쓰기 공책</span>
+            <span class="active-badge">7세 예비초등</span>
+          </div>
+
+          <div class="form-group">
+            <label for="input-korean10-text">연습 문장 입력</label>
+            <input type="text" id="input-korean10-text" value="학교에 갑니다" maxlength="10" placeholder="예: 바른 글씨 쓰기">
+            <span class="helper-text">최대 10자 입력 가능 (빈칸으로 두면 빈 연습장 인쇄)</span>
+          </div>
+
+          <div class="form-group">
+            <label for="select-korean10-rows">줄 수 (행 개수)</label>
+            <select id="select-korean10-rows">
+              <option value="6">6줄 (여유 있는 큰 칸)</option>
+              <option value="7" selected>7줄 (추천 규격)</option>
+              <option value="8">8줄</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="select-korean10-blank">스스로 쓰기 빈 줄 수</label>
+            <select id="select-korean10-blank">
+              <option value="0">모두 흐린 글씨로 따라 쓰기</option>
+              <option value="3" selected>절반은 스스로 쓰기 (빈 줄)</option>
+              <option value="all">모든 줄을 빈 칸으로 두기</option>
+            </select>
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-korean10-cross" checked>
+            <span>10칸 내부 십자 점선 표시</span>
+          </label>
+        </div>
+
+        <!-- 옵션: 기초 한자 쓰기 (5~6세) -->
         <div id="opts-hanja" class="options-box" style="display: none;">
           <div class="options-box-header">
             <span>🈴 기초 한자 쓰기 (8급)</span>
-            <span class="active-badge">숫자 한자</span>
+            <span class="active-badge">5~6세</span>
           </div>
 
           <div class="form-group">
@@ -1391,11 +1675,11 @@
           </label>
         </div>
 
-        <!-- 옵션 3: 반쪽 그리기 (대칭 그림 완성) -->
+        <!-- 옵션: 반쪽 그리기 (5~6세) -->
         <div id="opts-half" class="options-box" style="display: none;">
           <div class="options-box-header">
             <span>🦋 반쪽 그리기 (대칭 미술)</span>
-            <span class="active-badge">공간지각력</span>
+            <span class="active-badge">5~6세</span>
           </div>
 
           <div class="form-group">
@@ -1420,11 +1704,11 @@
           </label>
         </div>
 
-        <!-- 옵션 4: 선 긋기 -->
+        <!-- 옵션: 선 긋기 (3~4세) -->
         <div id="opts-line" class="options-box" style="display: none;">
           <div class="options-box-header">
             <span>〰️ 운필력 선 긋기 옵션</span>
-            <span class="active-badge">점선 모드</span>
+            <span class="active-badge">3~4세</span>
           </div>
 
           <div class="form-group">
@@ -1466,11 +1750,11 @@
           </div>
         </div>
 
-        <!-- 옵션 5: 가위질 -->
+        <!-- 옵션: 가위질 (3~4세) -->
         <div id="opts-scissor" class="options-box" style="display: none;">
           <div class="options-box-header">
             <span>✂️ 가위질 연습 도안 옵션</span>
-            <span class="active-badge">절취선 모드</span>
+            <span class="active-badge">3~4세</span>
           </div>
 
           <div class="form-group">
@@ -1502,11 +1786,11 @@
           </div>
         </div>
 
-        <!-- 옵션 6: 숫자 점잇기 -->
+        <!-- 옵션: 숫자 점잇기 (3~4세) -->
         <div id="opts-dot" class="options-box" style="display: none;">
           <div class="options-box-header">
             <span>🔢 숫자 점잇기 옵션</span>
-            <span class="active-badge">1~10 순서</span>
+            <span class="active-badge">3~4세</span>
           </div>
 
           <div class="form-group">
@@ -1531,11 +1815,11 @@
           <span class="helper-text" style="margin-left: 22px;">해제 시 점과 숫자만 남아 집중력을 높입니다.</span>
         </div>
 
-        <!-- 옵션 7: 칭찬 스티커판 -->
+        <!-- 옵션: 칭찬 스티커판 (전연령) -->
         <div id="opts-sticker" class="options-box" style="display: none;">
           <div class="options-box-header">
             <span>⭐ 칭찬 스티커판 옵션</span>
-            <span class="active-badge">스탬프 모드</span>
+            <span class="active-badge">전연령</span>
           </div>
 
           <div class="form-group">
@@ -1647,13 +1931,18 @@
     let selectedHanjaIndex = 0;
 
     /* ==========================================================================
-       2. 활동지 선택 & 메뉴 인터랙션
+       2. 활동지 선택 & 메뉴 인터랙션 (연령대 필터링 포함)
        ========================================================================== */
     let currentMode = 'name';
 
-    const activityCards = document.querySelectorAll('.activity-card');
+    const activityCards = document.querySelectorAll('.activity-card:not(.slot-placeholder)');
+    const allActivityCards = document.querySelectorAll('.activity-card');
+    const ageFilterBtns = document.querySelectorAll('.age-filter-btn');
+    const activityCountText = document.getElementById('activity-count-text');
+
     const optionBoxes = {
       name: document.getElementById('opts-name'),
+      korean10: document.getElementById('opts-korean10'),
       hanja: document.getElementById('opts-hanja'),
       half: document.getElementById('opts-half'),
       line: document.getElementById('opts-line'),
@@ -1666,6 +1955,10 @@
       name: {
         title: '내 이름을 바르게 써 보아요',
         subtitle: '글씨의 바른 획순을 생각하며 또박또박 따라 써 보세요.'
+      },
+      korean10: {
+        title: '초등 입학 준비 바른 글씨 연습 (10칸)',
+        subtitle: '바른 자세로 연필을 잡고 네모 칸의 중앙에 또박또박 써 보세요.'
       },
       hanja: {
         title: '기초 8급 한자 쓰기 놀이',
@@ -1692,6 +1985,44 @@
         subtitle: '착한 일이나 약속을 지킬 때마다 예쁜 스티커를 붙여주세요!'
       }
     };
+
+    // 연령대 필터링 이벤트
+    ageFilterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetAge = btn.getAttribute('data-age');
+
+        ageFilterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        let visibleCount = 0;
+        allActivityCards.forEach(card => {
+          const cardAge = card.getAttribute('data-age');
+          if (targetAge === 'all' || cardAge === targetAge || cardAge === 'all') {
+            card.classList.remove('is-hidden');
+            visibleCount++;
+          } else {
+            card.classList.add('is-hidden');
+          }
+        });
+
+        const ageLabels = {
+          'all': '전체 보기',
+          '3-4': '3~4세 놀이 중심',
+          '5-6': '5~6세 발달 중심',
+          '7': '7세 예비 초등'
+        };
+        activityCountText.textContent = ageLabels[targetAge] || '';
+
+        // 만약 현재 선택된 모드가 숨겨졌다면, 해당 연령대의 첫 번째 보이는 카드로 자동 전환
+        const activeCard = document.querySelector('.activity-card.active');
+        if (activeCard && activeCard.classList.contains('is-hidden')) {
+          const firstVisible = document.querySelector('.activity-card:not(.is-hidden):not(.slot-placeholder)');
+          if (firstVisible) {
+            switchActivityMode(firstVisible.getAttribute('data-mode'));
+          }
+        }
+      });
+    });
 
     activityCards.forEach(card => {
       card.addEventListener('click', () => {
@@ -1782,6 +2113,8 @@
     function renderWorksheet() {
       if (currentMode === 'name') {
         renderNameGrid();
+      } else if (currentMode === 'korean10') {
+        renderKorean10Grid();
       } else if (currentMode === 'hanja') {
         renderHanjaWorksheet();
       } else if (currentMode === 'half') {
@@ -1798,7 +2131,7 @@
     }
 
     /* ==========================================================================
-       6. 기능 1: 깍두기 공책(이름 따라 쓰기) 렌더링
+       6. 기능 1: 깍두기 공책(이름 따라 쓰기) 렌더링 (5~6세)
        ========================================================================== */
     const inputChildName = document.getElementById('input-child-name');
     const selectRows = document.getElementById('select-rows');
@@ -1892,7 +2225,76 @@
     checkRowLabel.addEventListener('change', () => { if (currentMode === 'name') renderNameGrid(); });
 
     /* ==========================================================================
-       7. 기능 2: 유아용 기초 한자 쓰기 (8급 한자) 렌더링
+       7. 기능 2: 7세 초등 입학 준비 10칸 받아쓰기 공책 렌더링
+       ========================================================================== */
+    const inputKorean10Text = document.getElementById('input-korean10-text');
+    const selectKorean10Rows = document.getElementById('select-korean10-rows');
+    const selectKorean10Blank = document.getElementById('select-korean10-blank');
+    const checkKorean10Cross = document.getElementById('check-korean10-cross');
+
+    function renderKorean10Grid() {
+      const rawSentence = inputKorean10Text.value || '';
+      const chars = Array.from(rawSentence);
+      const totalRows = parseInt(selectKorean10Rows.value, 10) || 7;
+      const blankOption = selectKorean10Blank.value;
+      const showCross = checkKorean10Cross.checked;
+
+      displayBody.innerHTML = '';
+      const container = document.createElement('div');
+      container.className = 'korean10-container';
+
+      const grid = document.createElement('div');
+      grid.className = 'korean10-grid';
+
+      for (let r = 0; r < totalRows; r++) {
+        const row = document.createElement('div');
+        row.className = 'korean10-row';
+
+        let isModel = (r === 0 && chars.length > 0 && blankOption !== 'all');
+        let isBlank = false;
+
+        if (blankOption === 'all') {
+          isBlank = true;
+        } else if (blankOption === '3') {
+          isBlank = (r >= Math.ceil(totalRows / 2));
+        }
+
+        let isTrace = (!isModel && !isBlank && chars.length > 0);
+
+        for (let c = 0; c < 10; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'korean10-cell' + (showCross ? ' has-cross' : '');
+
+          if (isModel) {
+            cell.classList.add('korean10-model');
+          } else if (isTrace) {
+            cell.classList.add('korean10-trace');
+          } else {
+            cell.classList.add('korean10-blank');
+          }
+
+          const charSpan = document.createElement('span');
+          charSpan.className = 'korean10-char';
+          charSpan.textContent = (c < chars.length) ? chars[c] : '';
+          cell.appendChild(charSpan);
+
+          row.appendChild(cell);
+        }
+
+        grid.appendChild(row);
+      }
+
+      container.appendChild(grid);
+      displayBody.appendChild(container);
+    }
+
+    inputKorean10Text.addEventListener('input', () => { if (currentMode === 'korean10') renderKorean10Grid(); });
+    selectKorean10Rows.addEventListener('change', () => { if (currentMode === 'korean10') renderKorean10Grid(); });
+    selectKorean10Blank.addEventListener('change', () => { if (currentMode === 'korean10') renderKorean10Grid(); });
+    checkKorean10Cross.addEventListener('change', () => { if (currentMode === 'korean10') renderKorean10Grid(); });
+
+    /* ==========================================================================
+       8. 기능 3: 기초 한자 쓰기 (8급 한자) 렌더링 (5~6세)
        ========================================================================== */
     const selectHanjaRows = document.getElementById('select-hanja-rows');
     const selectHanjaBlank = document.getElementById('select-hanja-blank');
@@ -1988,67 +2390,42 @@
     checkHanjaMascot.addEventListener('change', () => { if (currentMode === 'hanja') renderHanjaWorksheet(); });
 
     /* ==========================================================================
-       8. 기능 3: 나비 반쪽 그리기 (대칭 그림 완성) 렌더링
+       9. 기능 4: 나비 반쪽 그리기 (대칭 그림 완성) 렌더링 (5~6세)
        ========================================================================== */
     const selectHalfShape = document.getElementById('select-half-shape');
     const checkHalfHint = document.getElementById('check-half-hint');
     const checkHalfGrid = document.getElementById('check-half-grid');
 
-    // 대칭 도안 SVG 정의 (viewBox 0 0 500 460, 대칭축 x=250)
     const symmetryShapes = {
-      // 1) 나비 (Butterfly)
       butterfly: {
         name: '아름다운 나비',
         render: function(showHint) {
           return `
-            <!-- 모눈망 배경 (옵션) -->
-            <g class="half-grid-bg" opacity="0.3"></g>
-
-            <!-- 중앙 대칭 세로 점선 (접는 선) -->
             <line x1="250" y1="20" x2="250" y2="440" stroke="#ff4757" stroke-width="2.5" stroke-dasharray="8 6"/>
-
-            <!-- 나비 중앙 몸통 -->
-            <!-- 머리 -->
             <circle cx="250" cy="110" r="16" fill="#1e293b"/>
-            <!-- 몸통 -->
             <ellipse cx="250" cy="240" rx="14" ry="110" fill="#334155"/>
-            <!-- 꼬리 -->
             <ellipse cx="250" cy="380" rx="9" ry="25" fill="#334155"/>
 
-            <!-- 왼쪽 원본 (선명한 실선) -->
             <g clip-path="url(#left-clip)">
-              <!-- 왼쪽 더듬이 -->
               <path d="M 245 98 C 210 50 160 50 140 70" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
               <circle cx="140" cy="70" r="7" fill="#ff4757"/>
-
-              <!-- 왼쪽 큰 날개 (상단) -->
               <path d="M 245 150 C 180 60 70 80 50 180 C 35 250 120 290 245 270" fill="none" stroke="#0f172a" stroke-width="4.5" stroke-linejoin="round"/>
-              <!-- 큰 날개 내부 무늬 -->
               <circle cx="140" cy="180" r="24" fill="none" stroke="#0f172a" stroke-width="3.5"/>
               <circle cx="140" cy="180" r="12" fill="#ff7675"/>
               <path d="M 235 180 C 180 170 120 220 180 250" fill="none" stroke="#0f172a" stroke-width="3" stroke-dasharray="4 4"/>
-
-              <!-- 왼쪽 작은 날개 (하단) -->
               <path d="M 245 280 C 130 290 85 360 110 410 C 140 455 210 425 245 350" fill="none" stroke="#0f172a" stroke-width="4.5" stroke-linejoin="round"/>
-              <!-- 작은 날개 내부 무늬 -->
               <circle cx="160" cy="370" r="16" fill="none" stroke="#0f172a" stroke-width="3.5"/>
               <circle cx="160" cy="370" r="8" fill="#74b9ff"/>
             </g>
 
-            <!-- 오른쪽 영역 (기본: 백지 / 힌트 시: 흐린 점선) -->
             ${showHint ? `
             <g clip-path="url(#right-clip)" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.65">
-              <!-- 오른쪽 더듬이 -->
               <path d="M 255 98 C 290 50 340 50 360 70" stroke-linecap="round"/>
               <circle cx="360" cy="70" r="7"/>
-
-              <!-- 오른쪽 큰 날개 -->
               <path d="M 255 150 C 320 60 430 80 450 180 C 465 250 380 290 255 270"/>
               <circle cx="360" cy="180" r="24"/>
               <circle cx="360" cy="180" r="12"/>
               <path d="M 265 180 C 320 170 380 220 320 250"/>
-
-              <!-- 오른쪽 작은 날개 -->
               <path d="M 255 280 C 370 290 415 360 390 410 C 360 455 290 425 255 350"/>
               <circle cx="340" cy="370" r="16"/>
               <circle cx="340" cy="370" r="8"/>
@@ -2057,37 +2434,24 @@
           `;
         }
       },
-      // 2) 곰돌이 얼굴 (Bear)
       bear: {
         name: '귀여운 곰돌이',
         render: function(showHint) {
           return `
-            <!-- 중앙 대칭선 -->
             <line x1="250" y1="20" x2="250" y2="440" stroke="#ff4757" stroke-width="2.5" stroke-dasharray="8 6"/>
 
-            <!-- 왼쪽 원본 -->
             <g clip-path="url(#left-clip)">
-              <!-- 귀 외곽 & 내부 -->
               <circle cx="140" cy="110" r="45" fill="none" stroke="#0f172a" stroke-width="4.5"/>
               <circle cx="140" cy="110" r="24" fill="#ff7675" stroke="#0f172a" stroke-width="3"/>
-
-              <!-- 얼굴 윤곽 -->
               <path d="M 250 80 C 130 80 60 160 60 270 C 60 380 150 430 250 430" fill="none" stroke="#0f172a" stroke-width="4.5"/>
-
-              <!-- 눈 -->
               <circle cx="180" cy="230" r="14" fill="#0f172a"/>
               <circle cx="176" cy="226" r="4" fill="#ffffff"/>
-
-              <!-- 볼터치 -->
               <ellipse cx="140" cy="300" rx="20" ry="12" fill="#ffeaa7"/>
-
-              <!-- 주둥이 원 & 코 & 입 -->
               <path d="M 250 240 C 180 240 180 370 250 370" fill="none" stroke="#0f172a" stroke-width="3.5"/>
               <path d="M 250 270 C 230 270 220 290 250 300" fill="#0f172a" stroke="#0f172a" stroke-width="2"/>
               <path d="M 250 300 C 220 330 230 350 250 350" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round"/>
             </g>
 
-            <!-- 오른쪽 힌트선 -->
             ${showHint ? `
             <g clip-path="url(#right-clip)" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.65">
               <circle cx="360" cy="110" r="45"/>
@@ -2103,44 +2467,26 @@
           `;
         }
       },
-      // 3) 꼬마 로봇 (Robot)
       robot: {
         name: '멋진 꼬마 로봇',
         render: function(showHint) {
           return `
             <line x1="250" y1="20" x2="250" y2="440" stroke="#ff4757" stroke-width="2.5" stroke-dasharray="8 6"/>
 
-            <!-- 왼쪽 원본 -->
             <g clip-path="url(#left-clip)">
-              <!-- 안테나 -->
               <line x1="250" y1="80" x2="250" y2="40" stroke="#0f172a" stroke-width="4"/>
               <circle cx="250" cy="40" r="10" fill="#ff4757"/>
-
-              <!-- 귀 안테나 -->
               <rect x="80" y="145" width="20" height="30" rx="4" fill="#74b9ff" stroke="#0f172a" stroke-width="3"/>
-
-              <!-- 머리 상자 -->
               <rect x="100" y="80" width="300" height="160" rx="14" fill="none" stroke="#0f172a" stroke-width="4.5"/>
-
-              <!-- 눈 -->
               <circle cx="180" cy="150" r="22" fill="none" stroke="#0f172a" stroke-width="3.5"/>
               <circle cx="180" cy="150" r="10" fill="#0f172a"/>
-
-              <!-- 입 (게이지) -->
               <path d="M 180 210 L 250 210" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
-
-              <!-- 목 -->
               <rect x="220" y="240" width="60" height="20" fill="#dfe6e9" stroke="#0f172a" stroke-width="3"/>
-
-              <!-- 몸통 -->
               <rect x="110" y="260" width="280" height="160" rx="12" fill="none" stroke="#0f172a" stroke-width="4.5"/>
-
-              <!-- 가슴 계기판 & 버튼 -->
               <rect x="140" y="290" width="80" height="50" rx="6" fill="#ffeaa7" stroke="#0f172a" stroke-width="3"/>
               <circle cx="170" cy="380" r="12" fill="#ff7675" stroke="#0f172a" stroke-width="3"/>
             </g>
 
-            <!-- 오른쪽 힌트선 -->
             ${showHint ? `
             <g clip-path="url(#right-clip)" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.65">
               <rect x="400" y="145" width="20" height="30" rx="4"/>
@@ -2156,29 +2502,20 @@
           `;
         }
       },
-      // 4) 달콤한 사과 (Apple)
       apple: {
         name: '맛있는 사과',
         render: function(showHint) {
           return `
             <line x1="250" y1="20" x2="250" y2="440" stroke="#ff4757" stroke-width="2.5" stroke-dasharray="8 6"/>
 
-            <!-- 왼쪽 원본 -->
             <g clip-path="url(#left-clip)">
-              <!-- 꼭지 & 잎사귀 -->
               <path d="M 250 140 C 240 70 210 50 190 45" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>
               <path d="M 245 80 C 190 70 170 110 200 130 C 230 140 245 100 245 80 Z" fill="#55efc4" stroke="#0f172a" stroke-width="3.5"/>
-
-              <!-- 사과 본체 -->
               <path d="M 250 140 C 180 110 80 140 70 260 C 60 380 170 425 250 395" fill="none" stroke="#0f172a" stroke-width="4.5"/>
-
-              <!-- 사과 씨앗 -->
               <path d="M 200 270 C 190 260 210 240 210 250 C 210 265 205 275 200 270 Z" fill="#0f172a"/>
-              <!-- 하이라이트 빛 -->
               <path d="M 120 200 C 110 250 110 300 125 340" fill="none" stroke="#ff7675" stroke-width="3.5" stroke-linecap="round"/>
             </g>
 
-            <!-- 오른쪽 힌트선 -->
             ${showHint ? `
             <g clip-path="url(#right-clip)" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.65">
               <path d="M 250 140 C 320 110 420 140 430 260 C 440 380 330 425 250 395"/>
@@ -2201,7 +2538,6 @@
       const halfContainer = document.createElement('div');
       halfContainer.className = 'half-container';
 
-      // 1) 상단 안내 띠
       const banner = document.createElement('div');
       banner.className = 'half-banner';
       banner.innerHTML = `
@@ -2210,7 +2546,6 @@
       `;
       halfContainer.appendChild(banner);
 
-      // 2) 중앙 SVG 캔버스 영역
       const canvasBox = document.createElement('div');
       canvasBox.className = 'half-canvas-box';
 
@@ -2218,7 +2553,6 @@
       svg.setAttribute('class', 'half-canvas-svg');
       svg.setAttribute('viewBox', '0 0 500 460');
 
-      // 클립패스 정의 (왼쪽 절반 / 오른쪽 절반)
       let defs = `
         <defs>
           <clipPath id="left-clip">
@@ -2230,7 +2564,6 @@
         </defs>
       `;
 
-      // 보조 모눈선 패턴 (옵션)
       let gridSvg = '';
       if (showGrid) {
         gridSvg = `
@@ -2241,7 +2574,6 @@
         `;
       }
 
-      // 좌/우 영역 라벨 뱃지
       const labelsSvg = `
         <g font-family="Pretendard, sans-serif" font-size="12" font-weight="700">
           <rect x="15" y="15" width="80" height="24" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
@@ -2256,7 +2588,6 @@
       canvasBox.appendChild(svg);
       halfContainer.appendChild(canvasBox);
 
-      // 3) 하단 격려 팁
       const tipNote = document.createElement('div');
       tipNote.className = 'half-tip-note';
       tipNote.innerHTML = `🎨 반쪽을 다 그린 후, 양쪽 날개와 몸통을 크레파스로 예쁘게 색칠해 보세요!`;
@@ -2270,7 +2601,7 @@
     checkHalfGrid.addEventListener('change', () => { if (currentMode === 'half') renderHalfDrawing(); });
 
     /* ==========================================================================
-       9. 기능 4: 운필력 선 긋기 렌더링
+       10. 기능 5: 운필력 선 긋기 렌더링 (3~4세)
        ========================================================================== */
     const selectLineDifficulty = document.getElementById('select-line-difficulty');
     const selectLineCount = document.getElementById('select-line-count');
@@ -2420,7 +2751,7 @@
     selectLineTheme.addEventListener('change', () => { if (currentMode === 'line') renderLineTracing(); });
 
     /* ==========================================================================
-       10. 기능 5: 가위질 연습 도안 렌더링
+       11. 기능 6: 가위질 연습 도안 렌더링 (3~4세)
        ========================================================================== */
     const selectScissorType = document.getElementById('select-scissor-type');
     const selectScissorCount = document.getElementById('select-scissor-count');
@@ -2544,7 +2875,7 @@
     selectScissorTheme.addEventListener('change', () => { if (currentMode === 'scissor') renderScissorCutting(); });
 
     /* ==========================================================================
-       11. 기능 6: 칭찬 스티커판 렌더링
+       12. 기능 7: 칭찬 스티커판 렌더링 (전연령)
        ========================================================================== */
     const inputStickerName = document.getElementById('input-sticker-name');
     const selectStickerCount = document.getElementById('select-sticker-count');
@@ -2636,7 +2967,7 @@
     inputStickerReward.addEventListener('input', () => { if (currentMode === 'sticker') renderStickerBoard(); });
 
     /* ==========================================================================
-       12. 기능 7: 숫자 순서대로 점 잇기 (Dot-to-Dot) 렌더링
+       13. 기능 8: 숫자 순서대로 점 잇기 (Dot-to-Dot) 렌더링 (3~4세)
        ========================================================================== */
     const selectDotShape = document.getElementById('select-dot-shape');
     const checkDotGuide = document.getElementById('check-dot-guide');
@@ -2799,7 +3130,7 @@
     checkDotStartFlag.addEventListener('change', () => { if (currentMode === 'dot') renderDotToDot(); });
 
     /* ==========================================================================
-       13. 공통 서식 설정 연동
+       14. 공통 서식 설정 연동
        ========================================================================== */
     const inputTitle = document.getElementById('input-title');
     const displayTitle = document.getElementById('display-title');
