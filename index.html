@@ -1149,109 +1149,6 @@
       white-space: nowrap;
     }
 
-    /* 7) 칭찬 스티커판 */
-    .sticker-container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-    }
-
-    .sticker-promise-banner {
-      width: 100%;
-      background: linear-gradient(135deg, #fff5f5, #fff0f6);
-      border: 2px dashed #ffa8a8;
-      border-radius: 12px;
-      padding: 12px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-sizing: border-box;
-      margin-bottom: 14px;
-    }
-
-    .promise-title {
-      font-size: 13px;
-      font-weight: 800;
-      color: #e03131;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .promise-text {
-      font-size: 13px;
-      font-weight: 600;
-      color: #495057;
-      border-bottom: 1.5px solid #adb5bd;
-      padding-bottom: 2px;
-      min-width: 250px;
-      text-align: center;
-    }
-
-    .sticker-grid {
-      display: grid;
-      gap: 12px;
-      justify-content: center;
-      align-content: center;
-      flex: 1;
-      width: 100%;
-    }
-
-    .sticker-circle {
-      border: 2.5px dashed #ffa8a8;
-      border-radius: 50%;
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      box-sizing: border-box;
-    }
-
-    .sticker-num {
-      font-size: 15px;
-      font-weight: 800;
-      color: #fa5252;
-    }
-
-    .sticker-subicon {
-      font-size: 14px;
-      color: #ffc9c9;
-      margin-top: -2px;
-    }
-
-    .sticker-circle.goal-circle {
-      border: 3px solid var(--primary);
-      background: radial-gradient(circle, #fff5f5 0%, #ffe3e3 100%);
-      box-shadow: 0 4px 10px rgba(255, 107, 129, 0.25);
-    }
-
-    .sticker-circle.goal-circle .sticker-num {
-      font-size: 13px;
-      color: #d63031;
-    }
-
-    .sticker-circle.goal-circle .sticker-subicon {
-      font-size: 20px;
-    }
-
-    .sticker-bottom-note {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      padding: 10px 14px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      font-size: 12px;
-      color: #636e72;
-      border: 1px solid #e9ecef;
-      margin-top: 10px;
-    }
 
     /* 8) 숫자 점잇기 */
     .dot-container {
@@ -1400,7 +1297,7 @@
         border-color: #e2e8f0 !important;
       }
 
-      .scissor-start, .scissor-target, .sticker-promise-banner, .sticker-circle, .dot-instruction-bar, .hanja-hero-card, .half-banner {
+      .scissor-start, .scissor-target, .dot-instruction-bar, .hanja-hero-card, .half-banner {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
@@ -1533,17 +1430,7 @@
             </div>
           </div>
 
-          <!-- 전연령 공통 -->
-          <button type="button" class="activity-card" data-mode="sticker" data-age="all" style="grid-column: span 2;">
-            <span class="card-icon">⭐</span>
-            <div class="card-text">
-              <div class="card-header-row">
-                <span class="card-title">칭찬 스티커판</span>
-                <span class="age-badge badge-all">전연령</span>
-              </div>
-              <span class="card-desc">목표 달성 약속 및 보상 도안</span>
-            </div>
-          </button>
+
         </div>
       </section>
 
@@ -1815,32 +1702,7 @@
           <span class="helper-text" style="margin-left: 22px;">해제 시 점과 숫자만 남아 집중력을 높입니다.</span>
         </div>
 
-        <!-- 옵션: 칭찬 스티커판 (전연령) -->
-        <div id="opts-sticker" class="options-box" style="display: none;">
-          <div class="options-box-header">
-            <span>⭐ 칭찬 스티커판 옵션</span>
-            <span class="active-badge">전연령</span>
-          </div>
 
-          <div class="form-group">
-            <label for="input-sticker-name">아이 이름</label>
-            <input type="text" id="input-sticker-name" value="김지훈" maxlength="6" placeholder="아이 이름">
-          </div>
-
-          <div class="form-group">
-            <label for="select-sticker-count">스티커 목표 개수</label>
-            <select id="select-sticker-count">
-              <option value="10">10개 (첫 도전 / 단기 목표)</option>
-              <option value="20" selected>20개 (표준 한 달 목표)</option>
-              <option value="30">30개 (마스터 목표)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="input-sticker-reward">약속된 보상 (선물)</label>
-            <input type="text" id="input-sticker-reward" value="좋아하는 장난감 선물받기!" placeholder="예: 맛있는 간식 먹기">
-          </div>
-        </div>
       </section>
 
       <!-- 3. 공통 서식 설정 (접이식 아코디언) -->
@@ -1947,8 +1809,7 @@
       half: document.getElementById('opts-half'),
       line: document.getElementById('opts-line'),
       scissor: document.getElementById('opts-scissor'),
-      dot: document.getElementById('opts-dot'),
-      sticker: document.getElementById('opts-sticker')
+      dot: document.getElementById('opts-dot')
     };
 
     const defaultTitles = {
@@ -1979,10 +1840,6 @@
       dot: {
         title: '1부터 10까지 숫자 점잇기',
         subtitle: '숫자 1부터 순서대로 점을 이어 그림을 완성하고 예쁘게 색칠해보세요!'
-      },
-      sticker: {
-        title: '김지훈의 칭찬 스티커판',
-        subtitle: '착한 일이나 약속을 지킬 때마다 예쁜 스티커를 붙여주세요!'
       }
     };
 
@@ -2056,9 +1913,6 @@
       if (mode === 'hanja') {
         const currentH = hanjaList[selectedHanjaIndex];
         title = `기초 한자 [ ${currentH.char} ] - ${currentH.mean} ${currentH.sound}`;
-      } else if (mode === 'sticker') {
-        const name = document.getElementById('input-sticker-name').value.trim() || '김지훈';
-        title = `👑 ${name}의 칭찬 스티커판`;
       }
 
       updateHeaders(title, subtitle);
@@ -2123,8 +1977,6 @@
         renderLineTracing();
       } else if (currentMode === 'scissor') {
         renderScissorCutting();
-      } else if (currentMode === 'sticker') {
-        renderStickerBoard();
       } else if (currentMode === 'dot') {
         renderDotToDot();
       }
@@ -2875,99 +2727,7 @@
     selectScissorTheme.addEventListener('change', () => { if (currentMode === 'scissor') renderScissorCutting(); });
 
     /* ==========================================================================
-       12. 기능 7: 칭찬 스티커판 렌더링 (전연령)
-       ========================================================================== */
-    const inputStickerName = document.getElementById('input-sticker-name');
-    const selectStickerCount = document.getElementById('select-sticker-count');
-    const inputStickerReward = document.getElementById('input-sticker-reward');
-
-    function renderStickerBoard() {
-      const name = inputStickerName.value.trim() || '김지훈';
-      const targetCount = parseInt(selectStickerCount.value, 10) || 20;
-      const reward = inputStickerReward.value.trim() || '칭찬 듬뿍과 멋진 보상 받기!';
-
-      displayBody.innerHTML = '';
-      const stickerContainer = document.createElement('div');
-      stickerContainer.className = 'sticker-container';
-
-      const banner = document.createElement('div');
-      banner.className = 'sticker-promise-banner';
-      banner.innerHTML = `
-        <div class="promise-title">🎁 스티커를 다 모으면:</div>
-        <div class="promise-text">${reward}</div>
-        <div style="font-size: 20px;">🎉</div>
-      `;
-      stickerContainer.appendChild(banner);
-
-      const grid = document.createElement('div');
-      grid.className = 'sticker-grid';
-
-      let cols = 5;
-      let circleSize = 64;
-      if (targetCount === 10) {
-        cols = 5;
-        circleSize = 78;
-        grid.style.gap = '18px';
-      } else if (targetCount === 20) {
-        cols = 5;
-        circleSize = 64;
-        grid.style.gap = '14px';
-      } else if (targetCount === 30) {
-        cols = 6;
-        circleSize = 52;
-        grid.style.gap = '10px';
-      }
-
-      grid.style.gridTemplateColumns = `repeat(${cols}, ${circleSize}px)`;
-
-      for (let i = 1; i <= targetCount; i++) {
-        const circle = document.createElement('div');
-        circle.className = 'sticker-circle';
-        circle.style.width = `${circleSize}px`;
-        circle.style.height = `${circleSize}px`;
-
-        const isGoal = (i === targetCount);
-        if (isGoal) {
-          circle.classList.add('goal-circle');
-          circle.innerHTML = `
-            <div class="sticker-subicon">👑</div>
-            <div class="sticker-num">GOAL!</div>
-          `;
-        } else {
-          circle.innerHTML = `
-            <div class="sticker-num">${i}</div>
-            <div class="sticker-subicon">★</div>
-          `;
-        }
-
-        grid.appendChild(circle);
-      }
-      stickerContainer.appendChild(grid);
-
-      const note = document.createElement('div');
-      note.className = 'sticker-bottom-note';
-      note.innerHTML = `
-        <span>❤️ <strong>${name}</strong> 어린이는 언제나 스스로 바르게 행동해요!</span>
-        <span>확인 서명: _______________</span>
-      `;
-      stickerContainer.appendChild(note);
-
-      displayBody.appendChild(stickerContainer);
-    }
-
-    inputStickerName.addEventListener('input', (e) => {
-      const name = e.target.value.trim() || '김지훈';
-      if (currentMode === 'sticker') {
-        updateHeaders(`👑 ${name}의 칭찬 스티커판`, defaultTitles['sticker'].subtitle);
-        renderStickerBoard();
-      }
-    });
-
-    selectStickerCount.addEventListener('change', () => { if (currentMode === 'sticker') renderStickerBoard(); });
-    inputStickerReward.addEventListener('input', () => { if (currentMode === 'sticker') renderStickerBoard(); });
-
-    /* ==========================================================================
-       13. 기능 8: 숫자 순서대로 점 잇기 (Dot-to-Dot) 렌더링 (3~4세)
+       12. 기능 7: 숫자 순서대로 점 잇기 (Dot-to-Dot) 렌더링 (3~4세)
        ========================================================================== */
     const selectDotShape = document.getElementById('select-dot-shape');
     const checkDotGuide = document.getElementById('check-dot-guide');
